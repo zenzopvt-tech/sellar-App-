@@ -32,7 +32,7 @@ var SCHEMA = {
   Seller_Bank_Details: ['Seller_ID', 'Holder_Name', 'Bank_Name', 'Account_Number', 'IFSC', 'UPI_ID', 'Doc_FileID', 'Doc_URL', 'Updated_At'],
   Seller_Documents:    ['ID', 'Seller_ID', 'Doc_Type', 'File_ID', 'File_URL', 'Uploaded_At'],
   Categories:          ['ID', 'Name', 'Parent', 'Active', 'Created_At'],
-  Products:            ['Product_ID', 'Seller_ID', 'Name', 'Image_FileID', 'Image_URL', 'Description', 'Category', 'Subcategory', 'MRP', 'Selling_Price', 'Purchase_Price', 'Stock', 'SKU', 'Unit', 'Variants', 'Status', 'Created_At', 'Updated_At'],
+  Products:            ['Product_ID', 'Seller_ID', 'Name', 'Image_FileID', 'Image_URL', 'Description', 'Category', 'Subcategory', 'MRP', 'Selling_Price', 'Purchase_Price', 'Stock', 'SKU', 'Unit', 'Variants', 'Status', 'Created_At', 'Updated_At', 'Extra_Images'],
   Inventory:           ['ID', 'Product_ID', 'Seller_ID', 'Change', 'Stock_After', 'Reason', 'Updated_By', 'Updated_At'],
   Orders:              ['Order_ID', 'Order_No', 'Seller_ID', 'Customer_Name', 'Customer_Phone', 'Customer_Address', 'Total_Amount', 'Delivery_Charge', 'Discount', 'Final_Amount', 'Commission_Percent', 'Commission_Amount', 'Seller_Earning', 'Status', 'Remarks', 'Admin_Notes', 'Payment_Status', 'Created_At', 'Updated_At'],
   Order_Items:         ['ID', 'Order_ID', 'Product_ID', 'Product_Name', 'Qty', 'Price', 'Subtotal'],
@@ -42,7 +42,7 @@ var SCHEMA = {
   Meetings:            ['Meeting_ID', 'Seller_ID', 'Title', 'Description', 'Date', 'Time', 'Meet_Link', 'Status', 'Created_At', 'Created_By', 'Ended_At'],
   Meeting_Messages:    ['ID', 'Meeting_ID', 'Sender_Role', 'Sender_Name', 'Message', 'Sent_At'],
   Notifications:       ['ID', 'Target_Role', 'Target_ID', 'Type', 'Title', 'Body', 'Ref', 'Read_Flag', 'Created_At', 'Read_At'],
-  Messages:            ['ID', 'Thread_Seller_ID', 'From_Role', 'From_Name', 'Body', 'Read_Flag', 'Sent_At'],
+  Messages:            ['ID', 'Thread_Seller_ID', 'From_Role', 'From_Name', 'Body', 'Read_Flag', 'Sent_At', 'Image_FileID', 'Image_URL'],
   Support_Tickets:     ['Ticket_ID', 'Seller_ID', 'Category', 'Details', 'Image_FileID', 'Image_URL', 'Status', 'Admin_Reply', 'Reply_At', 'Created_At', 'Updated_At'],
   Activity_Logs:       ['ID', 'Actor_Role', 'Actor_ID', 'Action', 'Details', 'Created_At']
 };
@@ -123,6 +123,13 @@ function ensureSheets_() {
       sh.getRange(1, 1, 1, SCHEMA[name].length).setValues([SCHEMA[name]]);
       sh.getRange(1, 1, 1, SCHEMA[name].length).setFontWeight('bold').setBackground('#0a0a0a').setFontColor('#c8f542');
       sh.setFrozenRows(1);
+    } else {
+      var have = sh.getLastColumn();
+      if (have < SCHEMA[name].length) {
+        var missing = SCHEMA[name].slice(have);
+        var hr = sh.getRange(1, have + 1, 1, missing.length).setValues([missing]);
+        hr.setFontWeight('bold').setBackground('#0a0a0a').setFontColor('#c8f542');
+      }
     }
   });
   var first = ss.getSheets()[0];
@@ -804,6 +811,11 @@ function apiSaveProduct(token, p) {
       var up = uploadFile_(p.image, r.Seller_ID, 'product');
       p.Image_FileID = up.fileId; p.Image_URL = up.url;
     }
+    if (p.images && p.images.length) {
+      var urls = [];
+      p.images.forEach(function (im) { var u = uploadFile_(im, r.Seller_ID, 'product'); if (u.url) urls.push(u.url); });
+      if (urls.length) p.Extra_Images = urls.join('|');
+    }
     updateRow_('Products', r._row, {
       Name: p.name, Description: p.description || '', Category: p.category || '', Subcategory: p.subcategory || '',
       MRP: num_(p.mrp), Selling_Price: num_(p.sellingPrice),
@@ -813,6 +825,7 @@ function apiSaveProduct(token, p) {
       Status: p.status || r.Status,
       Image_FileID: p.Image_FileID !== undefined ? p.Image_FileID : r.Image_FileID,
       Image_URL: p.Image_URL !== undefined ? p.Image_URL : r.Image_URL,
+      Extra_Images: p.Extra_Images !== undefined ? p.Extra_Images : r.Extra_Images,
       Updated_At: nowStr_()
     });
     if (p.stock !== undefined && p.stock !== '' && num_(p.stock) !== num_(r.Stock)) {
@@ -825,11 +838,16 @@ function apiSaveProduct(token, p) {
   var sellerId = s.role === 'admin' ? (p.sellerId || '') : s.id;
   if (!sellerId) throw new Error('Select a seller for this product.');
   var img = uploadFile_(p.image, sellerId, 'product');
+  var extraUrls = [];
+  if (p.images && p.images.length) {
+    p.images.forEach(function (im) { var u = uploadFile_(im, sellerId, 'product'); if (u.url) extraUrls.push(u.url); });
+  }
   var currentStock = num_(p.stock);
   var status = (s.role === 'admin' || !approvalRequired) ? 'Active' : 'Pending';
   if (p.status) status = p.status;
   appendRow_('Products', {
     Product_ID: pid, Seller_ID: sellerId, Name: p.name, Image_FileID: img.fileId, Image_URL: img.url,
+    Extra_Images: extraUrls.join('|'),
     Description: p.description || '', Category: p.category || '', Subcategory: p.subcategory || '',
     MRP: num_(p.mrp), Selling_Price: num_(p.sellingPrice),
     Purchase_Price: (p.purchasePrice === '' || p.purchasePrice === undefined) ? '' : num_(p.purchasePrice),
@@ -1288,15 +1306,19 @@ function apiGetMessages(token) {
   return rows.sort(function (a, b) { return String(a.Sent_At).localeCompare(String(b.Sent_At)); });
 }
 
-function apiSendMessage(token, body, sellerId) {
+function apiSendMessage(token, body, sellerId, image) {
   var s = auth_(token);
-  if (!String(body || '').trim()) throw new Error('Message is empty.');
+  var hasText = !!String(body || '').trim();
+  var hasImg = !!(image && image.data);
+  if (!hasText && !hasImg) throw new Error('Message is empty.');
   var threadId = s.role === 'admin' ? sellerId : s.id;
   if (!threadId) throw new Error('Select a seller.');
   var name = s.role === 'admin' ? 'Admin' : (shopName_(s.id) || s.id);
-  appendRow_('Messages', { ID: nextId_('MSG'), Thread_Seller_ID: threadId, From_Role: s.role, From_Name: name, Body: String(body).trim(), Read_Flag: 'no', Sent_At: nowStr_() });
-  if (s.role === 'seller') notify_('admin', '', 'message', 'New Seller Message', name + ': ' + String(body).slice(0, 80), threadId);
-  else notify_('seller', threadId, 'message', 'New Message from Admin', String(body).slice(0, 80), '');
+  var img = hasImg ? uploadFile_(image, threadId, 'message') : { fileId: '', url: '' };
+  appendRow_('Messages', { ID: nextId_('MSG'), Thread_Seller_ID: threadId, From_Role: s.role, From_Name: name, Body: hasText ? String(body).trim() : '', Image_FileID: img.fileId, Image_URL: img.url, Read_Flag: 'no', Sent_At: nowStr_() });
+  var preview = hasText ? String(body).slice(0, 80) : 'Sent an image';
+  if (s.role === 'seller') notify_('admin', '', 'message', 'New Seller Message', name + ': ' + preview, threadId);
+  else notify_('seller', threadId, 'message', 'New Message from Admin', preview, '');
   return { ok: true };
 }
 
@@ -1305,8 +1327,9 @@ function apiGetMessageThreads(token) {
   var rows = allRows_('Messages');
   var threads = {};
   rows.forEach(function (m) {
-    if (!threads[m.Thread_Seller_ID]) threads[m.Thread_Seller_ID] = { sellerId: m.Thread_Seller_ID, last: m.Body, lastAt: m.Sent_At, unread: 0, shopName: shopName_(m.Thread_Seller_ID) };
-    threads[m.Thread_Seller_ID].last = m.Body;
+    var prev = m.Body || (m.Image_URL ? 'Sent an image' : '');
+    if (!threads[m.Thread_Seller_ID]) threads[m.Thread_Seller_ID] = { sellerId: m.Thread_Seller_ID, last: prev, lastAt: m.Sent_At, unread: 0, shopName: shopName_(m.Thread_Seller_ID) };
+    threads[m.Thread_Seller_ID].last = prev;
     threads[m.Thread_Seller_ID].lastAt = m.Sent_At;
     if (m.From_Role === 'seller' && String(m.Read_Flag) === 'no') threads[m.Thread_Seller_ID].unread++;
   });

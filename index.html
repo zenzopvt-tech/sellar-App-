@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>BLYNZO - Seller Partner</title>
+  <style>
+    :root{
+      --lime:#B6F500; --lime-dark:#8FCC00; --lime-soft:#F2FFD0;
+      --black:#0A0A0A; --ink:#141414; --panel:#FFFFFF; --line:#E7E7E4;
+      --muted:#6B6F66; --bg:#F5F6F2; --danger:#E5484D; --ok:#1F9D55; --warn:#D97706; --info:#2563EB;
+      --r:14px; --shadow:0 8px 24px rgba(10,10,10,.08);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
+    body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+    button{font-family:inherit;cursor:pointer;border:none}
+    input,select,textarea{font-family:inherit;font-size:15px;width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--lime-dark)}
+    label{display:block;font-weight:600;font-size:13px;margin:12px 0 6px;color:#3a3d38}
+    .req::after{content:" *";color:var(--danger)}
+    .hint{font-size:12px;color:var(--muted);margin-top:4px}
+
+    /* ---------- auth screens ---------- */
+    .auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;
+      background:radial-gradient(1200px 500px at 50% -10%, #26300a 0%, var(--black) 55%)}
+    .auth-card{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:28px 22px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+    .brand{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:6px}
+    .logo{width:76px;height:76px;border-radius:20px;background:var(--black);color:var(--lime);display:flex;align-items:center;justify-content:center;
+      font-weight:900;font-size:26px;letter-spacing:1px;border:3px solid var(--lime);overflow:hidden}
+    .logo img{width:100%;height:100%;object-fit:cover}
+    .brand-name{font-size:30px;font-weight:900;letter-spacing:5px;color:var(--black)}
+    .brand-name span{color:#7fb300}
+    .welcome{color:var(--muted);font-size:13.5px;text-align:center;margin:4px 0 18px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 18px;border-radius:12px;font-weight:700;font-size:15.5px;transition:.15s}
+    .btn-lime{background:var(--lime);color:var(--black)}
+    .btn-lime:active{transform:scale(.98)}
+    .btn-dark{background:var(--black);color:#fff}
+    .btn-ghost{background:#F1F2EC;color:var(--ink)}
+    .btn-danger{background:var(--danger);color:#fff}
+    .btn-sm{padding:8px 12px;font-size:13px;border-radius:9px;width:auto}
+    .btn[disabled]{opacity:.55;pointer-events:none}
+    .auth-alt{margin-top:14px;text-align:center;font-size:13.5px;color:var(--muted)}
+    .link{color:#5c8a00;font-weight:700;text-decoration:none;cursor:pointer}
+    .field-wrap{position:relative}
+    .eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;font-size:16px;padding:6px;color:var(--muted)}
+    .row2{display:flex;align-items:center;justify-content:space-between;margin:12px 0;font-size:13.5px}
+    .chk{display:flex;align-items:center;gap:8px}
+    .chk input{width:18px;height:18px}
+    .seg{display:flex;gap:8px;margin-bottom:14px}
+    .seg button{flex:1;padding:12px;border-radius:11px;border:1.5px solid var(--line);background:#fff;font-weight:700}
+    .seg button.on{border-color:var(--lime-dark);background:var(--lime-soft);color:#3d5400}
+    .divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:16px 0}
+    .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+
+    /* ---------- stepper ---------- */
+    .stepper{display:flex;gap:4px;margin:6px 0 16px}
+    .stepper div{flex:1;height:5px;border-radius:3px;background:var(--line)}
+    .stepper div.on{background:var(--lime-dark)}
+    .step-title{font-weight:800;font-size:16px;margin-bottom:2px}
+    .step-sub{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+    .review-block{background:#FAFBF7;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+    .review-block h4{font-size:13px;color:#5c8a00;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+    .kv{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:4px 0;border-bottom:1px dashed #EDEEE8}
+    .kv b{color:#3a3d38;font-weight:600}
+    .kv span{text-align:right;color:var(--ink);word-break:break-word}
+
+    /* ---------- success screen ---------- */
+    .success-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+      background:linear-gradient(160deg,#123d1f 0%,#0A0A0A 70%)}
+    .success-card{background:#fff;border-radius:22px;max-width:430px;width:100%;padding:30px 24px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+    .tick{width:84px;height:84px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;font-size:42px;margin:0 auto 14px;color:var(--black)}
+    .cred-box{background:#0e1400;border:1.5px solid var(--lime-dark);border-radius:14px;padding:14px;margin:14px 0;color:#fff}
+    .cred-box .lbl{font-size:11px;letter-spacing:2px;color:#b7d94c}
+    .cred-box .val{font-size:24px;font-weight:900;color:var(--lime);letter-spacing:2px;margin:2px 0 10px}
+    .cred-actions{display:flex;gap:8px;justify-content:center}
+
+    /* ---------- app shell ---------- */
+    #shell{display:none;min-height:100vh}
+    header.top{position:sticky;top:0;z-index:40;background:var(--black);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 14px}
+    header.top .mini-logo{width:38px;height:38px;border-radius:10px;background:#000;border:2px solid var(--lime);color:var(--lime);font-weight:900;display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0}
+    header.top .mini-logo img{width:100%;height:100%;object-fit:cover}
+    header.top .tt{font-weight:900;letter-spacing:2px;font-size:16px}
+    header.top .tt small{display:block;font-size:10.5px;letter-spacing:.4px;color:#9aa48b;font-weight:600}
+    .top-spacer{flex:1}
+    .icon-btn{position:relative;background:#1c1c1c;border:1px solid #2c2c2c;color:#fff;width:38px;height:38px;border-radius:10px;font-size:17px;display:flex;align-items:center;justify-content:center}
+    .dot{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+    .burger{background:none;color:#fff;font-size:22px;width:38px;height:38px}
+    #sidebar{position:fixed;z-index:60;top:0;left:0;bottom:0;width:262px;background:var(--black);color:#fff;transform:translateX(-105%);transition:.22s;overflow-y:auto;padding:14px 10px 80px}
+    #sidebar.open{transform:none}
+    #scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55;display:none}
+    #scrim.open{display:block}
+    .side-brand{display:flex;align-items:center;gap:10px;padding:8px 8px 16px}
+    .nav-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;color:#cfd4c8;font-weight:600;font-size:14px;margin:2px 0}
+    .nav-item .ic{width:22px;text-align:center}
+    .nav-item.on{background:var(--lime);color:var(--black)}
+    .nav-sec{font-size:10.5px;letter-spacing:1.5px;color:#77806b;padding:14px 12px 4px;font-weight:800}
+    main#content{padding:14px 14px 96px;max-width:1020px;margin:0 auto}
+    #bottomnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:45;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+    #bottomnav button{flex:1;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:700;color:var(--muted);padding:5px 0;border-radius:10px}
+    #bottomnav button.on{color:#5c8a00;background:var(--lime-soft)}
+    #bottomnav .ic{font-size:19px}
+    @media(min-width:900px){ #bottomnav{display:none} main#content{margin-left:276px;padding-bottom:40px} }
+
+    /* ---------- cards / lists ---------- */
+    .page-title{font-size:19px;font-weight:800;margin:2px 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    @media(min-width:700px){.cards{grid-template-columns:repeat(4,1fr)}}
+    .cards.c3{grid-template-columns:repeat(2,1fr)} @media(min-width:700px){.cards.c3{grid-template-columns:repeat(3,1fr)}}
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+    .stat .n{font-size:24px;font-weight:900}
+    .stat .l{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+    .stat .ic{font-size:18px;float:right;opacity:.7}
+    .stat.lime{background:var(--black);border-color:var(--black)}
+    .stat.lime .n{color:var(--lime)} .stat.lime .l{color:#a9b49a}
+    .panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+    .panel h3{font-size:15px;margin-bottom:10px}
+    .searchbar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+    .searchbar input,.searchbar select{flex:1;min-width:130px}
+    .chip{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:.3px}
+    .chip.green{background:#E4F7D8;color:#2e6b00} .chip.red{background:#FDE3E4;color:#B42318}
+    .chip.amber{background:#FEF0DC;color:#B45309} .chip.blue{background:#E0EAFF;color:#1D4ED8}
+    .chip.gray{background:#EDEFE9;color:#5b6058} .chip.black{background:var(--black);color:var(--lime)}
+    .chip.lime{background:var(--lime);color:var(--black)}
+    .list-item{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:13px;margin-bottom:9px;box-shadow:var(--shadow)}
+    .list-item .li-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+    .list-item .li-title{font-weight:800;font-size:14.5px}
+    .list-item .li-sub{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+    .li-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .empty{text-align:center;color:var(--muted);padding:38px 16px;background:#fff;border:1.5px dashed var(--line);border-radius:var(--r)}
+    .empty .e-ic{font-size:34px;margin-bottom:8px}
+    .pager{display:flex;gap:6px;justify-content:center;align-items:center;margin:14px 0;font-size:13px;color:var(--muted)}
+    .pager button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-weight:700}
+    .pager button[disabled]{opacity:.4}
+    table.tbl{width:100%;border-collapse:collapse;background:#fff;font-size:13px}
+    .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);background:#fff}
+    .tbl th{background:var(--black);color:var(--lime);text-align:left;padding:10px 8px;font-size:11.5px;letter-spacing:.5px;white-space:nowrap}
+    .tbl td{padding:10px 8px;border-bottom:1px solid #F0F1EC;white-space:nowrap}
+    .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .filters button{padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:700;font-size:12.5px}
+    .filters button.on{background:var(--black);color:var(--lime);border-color:var(--black)}
+    .banner{border-radius:12px;padding:12px 14px;font-size:13.5px;font-weight:600;margin-bottom:12px}
+    .banner.warn{background:#FFF6E5;border:1px solid #F3D9A4;color:#92580a}
+    .banner.info{background:#EAF2FF;border:1px solid #C3D7FE;color:#1e4fc2}
+    .banner.lime{background:var(--lime-soft);border:1px solid #cdea7a;color:#42590a}
+    img.thumb{width:52px;height:52px;border-radius:10px;object-fit:cover;border:1px solid var(--line);background:#f4f4f0}
+    .flex{display:flex;gap:10px;align-items:center}
+    .grow{flex:1}
+    .mt{margin-top:12px}.mb{margin-bottom:12px}
+    .grid2{display:grid;grid-template-columns:1fr;gap:0 12px}
+    @media(min-width:640px){.grid2{grid-template-columns:1fr 1fr}}
+    .sec-h{font-size:12px;font-weight:800;letter-spacing:1.2px;color:#77806b;text-transform:uppercase;margin:16px 0 8px}
+
+    /* ---------- chat ---------- */
+    .chat{display:flex;flex-direction:column;gap:8px;padding:12px;background:#F7F8F3;border:1px solid var(--line);border-radius:var(--r);height:46vh;overflow-y:auto;margin-bottom:10px}
+    .bub{max-width:78%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.45}
+    .bub .who{font-size:10.5px;font-weight:800;opacity:.65;margin-bottom:2px}
+    .bub .when{font-size:10px;opacity:.55;margin-top:3px}
+    .bub.me{align-self:flex-end;background:var(--black);color:#fff;border-bottom-right-radius:4px}
+    .bub.them{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+    .chat-in{display:flex;gap:8px}
+    .chat-in input{flex:1}
+
+    /* ---------- modal / toast / loader ---------- */
+    #modal-root{display:none;position:fixed;inset:0;z-index:90;background:rgba(8,8,8,.55);align-items:flex-end;justify-content:center}
+    @media(min-width:640px){#modal-root{align-items:center}}
+    #modal-root.open{display:flex}
+    .modal{background:#fff;width:100%;max-width:520px;border-radius:20px 20px 0 0;max-height:92vh;overflow-y:auto;padding:18px}
+    @media(min-width:640px){.modal{border-radius:20px}}
+    .modal h3{margin-bottom:12px;font-size:17px}
+    .modal-actions{display:flex;gap:8px;margin-top:16px}
+    #toast-wrap{position:fixed;top:14px;left:0;right:0;z-index:120;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+    .toast{background:var(--black);color:#fff;padding:11px 18px;border-radius:999px;font-size:13.5px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:92%}
+    .toast.err{background:var(--danger)} .toast.ok{background:#173f00;color:var(--lime)}
+    #loader{display:none;position:fixed;inset:0;z-index:110;background:rgba(255,255,255,.55);align-items:center;justify-content:center}
+    #loader.open{display:flex}
+    .spin{width:44px;height:44px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--lime-dark);animation:sp .8s linear infinite}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .skel{height:64px;border-radius:var(--r);background:linear-gradient(90deg,#ececec,#f7f7f4,#ececec);background-size:200% 100%;animation:sk 1.1s infinite;margin-bottom:9px}
+    @keyframes sk{to{background-position:-200% 0}}
+    .shop-head{display:flex;gap:12px;align-items:center;background:var(--black);color:#fff;border-radius:var(--r);padding:14px;margin-bottom:12px}
+    .shop-head img{width:56px;height:56px;border-radius:12px;object-fit:cover;border:2px solid var(--lime)}
+    .shop-head .n{font-weight:900;font-size:16px}
+    .shop-head .s{font-size:12px;color:#aab49a;margin-top:2px}
+    .noti-item{display:flex;gap:10px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:8px}
+    .noti-item.unread{border-left:4px solid var(--lime-dark);background:#FCFFF2}
+    .noti-item .ic{font-size:18px}
+    .noti-item .t{font-weight:800;font-size:13.5px}
+    .noti-item .b{font-size:13px;color:#4a4d47;margin-top:2px;line-height:1.45}
+    .noti-item .w{font-size:11px;color:var(--muted);margin-top:4px}
+  </style>
+</head>
+<body>
+  <div id="auth-root"></div>
+
+  <div id="shell">
+    <header class="top">
+      <button class="burger" onclick="toggleSidebar(true)">☰</button>
+      <div class="mini-logo" id="hd-logo">B</div>
+      <div class="tt"><span id="hd-brand">BLYNZO</span><small id="hd-sub">Seller Partner</small></div>
+      <div class="top-spacer"></div>
+      <button class="icon-btn" onclick="openNotifications()">🔔<span class="dot" id="bell-dot" style="display:none">0</span></button>
+      <button class="icon-btn" onclick="doLogout()" title="Logout">⏻</button>
+    </header>
+    <div id="scrim" onclick="toggleSidebar(false)"></div>
+    <aside id="sidebar"></aside>
+    <main id="content"></main>
+    <nav id="bottomnav"></nav>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-wrap"></div>
+  <div id="loader"><div class="spin"></div></div>
+
+  <script>
+/* ================= BLYNZO FRONTEND CORE ================= */
+'use strict';
+
+var S = { token: null, role: null, boot: null, cfg: null, page: null, params: {}, cache: { sellers: [], categories: [] }, timers: {} };
+var PAGE_SIZE = 10;
+
+/* ---------- api ---------- */
+function api(fn) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  return new Promise(function (resolve, reject) {
+    try {
+      var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(function (err) {
+        var msg = (err && err.message) ? err.message : String(err);
+        if (msg === 'SESSION_EXPIRED') { forceLogout('Session expired. Please log in again.'); reject(err); return; }
+        if (msg === 'ACCESS_DENIED') { toast('You are not allowed to perform this action.', 'err'); reject(err); return; }
+        reject(err);
+      });
+      runner[fn].apply(runner, args);
+    } catch (e) { reject(e); }
+  });
+}
+function call(fn) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  showLoader();
+  return api.apply(null, [fn].concat(args)).then(function (r) { hideLoader(); return r; }, function (e) { hideLoader(); toast((e && e.message) ? e.message : 'Something went wrong. Check your network.', 'err'); throw e; });
+}
+
+/* ---------- helpers ---------- */
+function $(id) { return document.getElementById(id); }
+function esc(v) { return String(v === null || v === undefined ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function money(v) { return '\u20B9' + (Math.round(Number(v || 0) * 100) / 100).toLocaleString('en-IN'); }
+function toast(msg, type) {
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type || '');
+  t.textContent = msg;
+  $('toast-wrap').appendChild(t);
+  setTimeout(function () { t.style.opacity = '0'; t.style.transition = '.4s'; }, 2600);
+  setTimeout(function () { t.remove(); }, 3100);
+}
+function showLoader() { $('loader').classList.add('open'); }
+function hideLoader() { $('loader').classList.remove('open'); }
+function statusChip(st) {
+  var map = { Active: 'green', Completed: 'green', Paid: 'green', Approved: 'green', Answered: 'green', Ended: 'gray', Archived: 'gray', Read: 'gray',
+    Pending: 'amber', 'Pending Acceptance': 'amber', Open: 'amber', Unpaid: 'amber', Ongoing: 'blue', Scheduled: 'blue', Processing: 'blue', Assigned: 'blue', Accepted: 'blue', Reopened: 'blue', 'In Stock': 'green', 'Low Stock': 'amber',
+    Inactive: 'gray', Rejected: 'red', Cancelled: 'red', Suspended: 'red', 'Out of Stock': 'red', New: 'lime' };
+  return '<span class="chip ' + (map[st] || 'gray') + '">' + esc(st || '-') + '</span>';
+}
+function copyText(txt) {
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function () { toast('Copied: ' + txt, 'ok'); }); return; }
+  var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast('Copied: ' + txt, 'ok'); } catch (e) { toast('Copy failed', 'err'); }
+  ta.remove();
+}
+function downloadTxt(filename, text) {
+  var a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+  a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function toCSV(rows) {
+  if (!rows || !rows.length) return '';
+  var keys = Object.keys(rows[0]);
+  var esc = function (v) { return '"' + String(v === undefined || v === null ? '' : v).replace(/"/g, '""') + '"'; };
+  return keys.join(',') + '\n' + rows.map(function (r) { return keys.map(function (k) { return esc(r[k]); }).join(','); }).join('\n');
+}
+function exportCSV(rows, name) {
+  if (!rows || !rows.length) { toast('Nothing to export.', 'err'); return; }
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(toCSV(rows));
+  a.download = name + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('Exported ' + rows.length + ' rows.', 'ok');
+}
+function printReport(title, html) {
+  var w = window.open('', '_blank');
+  if (!w) { toast('Allow pop-ups to print reports.', 'err'); return; }
+  w.document.write('<html><head><title>' + title + '</title><style>body{font-family:Arial;padding:24px}h1{font-size:20px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #999;padding:6px;text-align:left}th{background:#eee}</style></head><body><h1>' + title + '</h1><p>BLYNZO Seller Partner - generated ' + new Date().toLocaleString() + '</p>' + html + '</body></html>');
+  w.document.close();
+  setTimeout(function () { w.print(); }, 400);
+}
+function timeAgo(s) {
+  if (!s) return '';
+  var d = new Date(String(s).replace(' ', 'T'));
+  if (isNaN(d)) return s;
+  var diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  return String(s).slice(0, 10);
+}
+
+/* ---------- modal ---------- */
+function openModal(html) {
+  $('modal-root').innerHTML = '<div class="modal">' + html + '</div>';
+  $('modal-root').classList.add('open');
+}
+function closeModal() { $('modal-root').classList.remove('open'); $('modal-root').innerHTML = ''; }
+function confirmDialog(msg, onYes, danger) {
+  openModal('<h3>Confirm</h3><p style="font-size:14px;line-height:1.5">' + esc(msg) + '</p>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn ' + (danger ? 'btn-danger' : 'btn-lime') + '" id="cf-yes">Yes, continue</button></div>');
+  $('cf-yes').onclick = function () { closeModal(); onYes(); };
+}
+
+/* ---------- form builder ---------- */
+function fieldHTML(f, val) {
+  var v = val === undefined || val === null ? (f.def !== undefined ? f.def : '') : val;
+  var req = f.req ? ' req' : '';
+  var id = 'f_' + f.k;
+  var ph = f.ph ? ' placeholder="' + esc(f.ph) + '"' : '';
+  var inner;
+  if (f.type === 'select') {
+    inner = '<select id="' + id + '"' + ph + '>' + (f.opts || []).map(function (o) {
+      return '<option value="' + esc(o) + '"' + (String(o) === String(v) ? ' selected' : '') + '>' + esc(o) + '</option>';
+    }).join('') + '</select>';
+  } else if (f.type === 'textarea') {
+    inner = '<textarea id="' + id + '" rows="3"' + ph + '>' + esc(v) + '</textarea>';
+  } else if (f.type === 'file') {
+    inner = '<input type="file" id="' + id + '" accept="' + (f.accept || 'image/*') + '"' + (f.any ? '' : '') + '>';
+  } else {
+    var t = f.type || 'text';
+    inner = '<input type="' + t + '" id="' + id + '" value="' + esc(v) + '"' + ph + (f.min ? ' min="' + f.min + '"' : '') + '>';
+  }
+  return '<label class="' + req.trim() + '" for="' + id + '">' + esc(f.label) + '</label>' + inner + (f.hint ? '<div class="hint">' + f.hint + '</div>' : '');
+}
+function buildFields(defs, vals) {
+  return defs.map(function (f) { return fieldHTML(f, vals ? vals[f.k] : undefined); }).join('');
+}
+function collectFields(defs) {
+  var out = {}, ok = true, firstBad = null;
+  defs.forEach(function (f) {
+    var el = $('f_' + f.k);
+    if (!el) return;
+    var v = el.value;
+    if (f.type === 'file') {
+      var file = el.files && el.files[0];
+      out[f.k] = file ? file : null;
+      if (f.req && !file) { ok = false; firstBad = firstBad || el; el.style.borderColor = '#E5484D'; }
+      return;
+    }
+    if (f.req && !String(v).trim()) { ok = false; firstBad = firstBad || el; el.style.borderColor = '#E5484D'; }
+    else el.style.borderColor = '';
+    out[f.k] = v;
+  });
+  if (!ok) { if (firstBad) firstBad.focus(); throw new Error('Please fill all required fields.'); }
+  return out;
+}
+function fileToB64(file) {
+  return new Promise(function (res, rej) {
+    if (!file) { res(null); return; }
+    if (file.size > 5 * 1024 * 1024) { rej(new Error('File too large (max 5 MB): ' + file.name)); return; }
+    var r = new FileReader();
+    r.onload = function () {
+      var parts = String(r.result).split(',');
+      res({ name: file.name, mimeType: file.type, data: parts[1] });
+    };
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+/* ---------- pagination ---------- */
+function paginate(key, arr) {
+  var per = PAGE_SIZE;
+  var st = S.cache['pg_' + key] || 1;
+  var pages = Math.max(1, Math.ceil(arr.length / per));
+  if (st > pages) st = pages;
+  S.cache['pg_' + key] = st;
+  var slice = arr.slice((st - 1) * per, st * per);
+  var pager = arr.length > per ?
+    '<div class="pager"><button ' + (st <= 1 ? 'disabled' : '') + ' onclick="pgPrev(\'' + key + '\')">Prev</button><span>Page ' + st + ' of ' + pages + ' (' + arr.length + ')</span><button ' + (st >= pages ? 'disabled' : '') + ' onclick="pgNext(\'' + key + '\')">Next</button></div>' : '';
+  return { slice: slice, pager: pager };
+}
+function pgNext(k) { S.cache['pg_' + k] = (S.cache['pg_' + k] || 1) + 1; refresh(); }
+function pgPrev(k) { S.cache['pg_' + k] = Math.max(1, (S.cache['pg_' + k] || 1) - 1); refresh(); }
+
+/* ---------- date filter bar ---------- */
+function dateFilterBar(stateKey) {
+  var cur = S.cache[stateKey] || 'all';
+  var opts = [['all', 'All'], ['today', 'Today'], ['yesterday', 'Yesterday'], ['week', 'This Week'], ['month', 'This Month'], ['custom', 'Custom']];
+  var custom = cur === 'custom' ?
+    '<div class="searchbar mt"><input type="date" id="df-from" value="' + esc(S.cache[stateKey + '_from'] || '') + '"><input type="date" id="df-to" value="' + esc(S.cache[stateKey + '_to'] || '') + '"><button class="btn btn-dark btn-sm" onclick="applyCustom(\'' + stateKey + '\')">Apply</button></div>' : '';
+  return '<div class="filters">' + opts.map(function (o) {
+    return '<button class="' + (cur === o[0] ? 'on' : '') + '" onclick="setDFilter(\'' + stateKey + '\',\'' + o[0] + '\')">' + o[1] + '</button>';
+  }).join('') + '</div>' + custom;
+}
+function setDFilter(key, v) { S.cache[key] = v; refresh(); }
+function applyCustom(key) { S.cache[key + '_from'] = $('df-from').value; S.cache[key + '_to'] = $('df-to').value; refresh(); }
+function dFilterArgs(key) { return [S.cache[key] || 'all', S.cache[key + '_from'] || '', S.cache[key + '_to'] || '']; }
+
+/* ---------- auth screens ---------- */
+function renderWelcome() {
+  $('auth-root').style.display = 'block';
+  $('shell').style.display = 'none';
+  var cfg = S.cfg || {};
+  $('auth-root').innerHTML =
+    '<div class="auth-wrap"><div class="auth-card">' +
+    '<div class="brand"><div class="logo">' + (cfg.logo ? '<img src="' + esc(cfg.logo) + '" onerror="this.remove()">' : 'B') + '</div>' +
+    '<div class="brand-name">' + esc((cfg.brand || 'BLYNZO').slice(0, 4)) + '<span>' + esc((cfg.brand || 'BLYNZO').slice(4)) + '</span></div>' +
+    '<div class="welcome">' + esc(cfg.appDescription || 'Welcome to BLYNZO Seller Partner Platform. Manage your shop, products, orders and payments.') + '</div></div>' +
+    '<button class="btn btn-dark mb" onclick="showAdminLogin()">&#128274; &nbsp;Admin Login</button>' +
+    '<button class="btn btn-lime" onclick="showSellerEntry()">&#128722; &nbsp;Seller Login</button>' +
+    '<div class="auth-alt">New seller? <span class="link" onclick="showSellerEntry()">Create a seller account</span></div>' +
+    '</div></div>';
+}
+function showAdminLogin() {
+  var saved = getSaved('admin');
+  $('auth-root').innerHTML =
+    '<div class="auth-wrap"><div class="auth-card">' +
+    '<div class="brand"><div class="logo">B</div><div class="brand-name">ADMIN<span> LOGIN</span></div>' +
+    '<div class="welcome">Restricted area. Authorized admin only.</div></div>' +
+    '<label class="req">Admin User ID</label><input id="al-id" placeholder="Enter Admin User ID" value="' + esc(saved ? saved.id : '') + '">' +
+    '<label class="req">Password</label><div class="field-wrap"><input id="al-pw" type="password" placeholder="Enter password"><button class="eye" onclick="togglePw(\'al-pw\',this)">Show</button></div>' +
+    '<div class="row2"><label class="chk" style="margin:0"><input type="checkbox" id="al-rem"' + (saved ? ' checked' : '') + '> Remember Me</label></div>' +
+    '<button class="btn btn-dark" onclick="doAdminLogin()">Login as Admin</button>' +
+    '<div class="divider">help</div>' +
+    '<div class="auth-alt" style="text-align:left;line-height:1.6"><b>Forgot password / recovery:</b><br>' + esc((S.cfg && S.cfg.recoveryContact) || 'Contact the platform owner to reset admin credentials. Credentials are stored securely in Script Properties and can only be changed by the authorized owner from Admin &gt; Settings &gt; Security.') + '</div>' +
+    '<div class="auth-alt"><span class="link" onclick="renderWelcome()">Back</span></div>' +
+    '</div></div>';
+}
+function showSellerEntry() {
+  $('auth-root').innerHTML =
+    '<div class="auth-wrap"><div class="auth-card">' +
+    '<div class="brand"><div class="logo">B</div><div class="brand-name">SELLER<span> ZONE</span></div>' +
+    '<div class="welcome">Login with your credentials or register as a new BLYNZO seller partner.</div></div>' +
+    '<button class="btn btn-lime mb" onclick="showSellerLogin()">Existing Seller &ndash; Login</button>' +
+    '<button class="btn btn-dark" onclick="' + ((S.cfg && S.cfg.registrationOpen === false) ? 'toast(\'Registration is currently closed.\',\'err\')' : 'showRegister()') + '">New Seller &ndash; Register</button>' +
+    '<div class="auth-alt"><span class="link" onclick="renderWelcome()">Back</span></div>' +
+    '</div></div>';
+}
+function showSellerLogin() {
+  var saved = getSaved('seller');
+  $('auth-root').innerHTML =
+    '<div class="auth-wrap"><div class="auth-card">' +
+    '<div class="brand"><div class="logo">B</div><div class="brand-name">SELLER<span> LOGIN</span></div>' +
+    '<div class="welcome">Use your Seller ID (BN9...) or registered mobile number.</div></div>' +
+    '<label class="req">Seller ID / Mobile Number</label><input id="sl-id" placeholder="BN9K72 or 98765xxxxx" value="' + esc(saved ? saved.id : '') + '">' +
+    '<label class="req">Seller PIN</label><div class="field-wrap"><input id="sl-pin" type="password" inputmode="numeric" placeholder="Enter your PIN (933...)"><button class="eye" onclick="togglePw(\'sl-pin\',this)">Show</button></div>' +
+    '<div class="row2"><label class="chk" style="margin:0"><input type="checkbox" id="sl-rem"' + (saved ? ' checked' : '') + '> Remember Me</label></div>' +
+    '<button class="btn btn-lime" onclick="doSellerLogin()">Login as Seller</button>' +
+    '<div class="divider">help</div>' +
+    '<div class="auth-alt" style="text-align:left"><b>Forgot PIN?</b> Contact admin for a PIN reset.<br>' +
+    '<span class="link" onclick="forgotPin()">Request PIN Reset</span></div>' +
+    '<div class="auth-alt">New seller? <span class="link" onclick="showRegister()">Register here</span> &nbsp;|&nbsp; <span class="link" onclick="renderWelcome()">Back</span></div>' +
+    '</div></div>';
+}
+function togglePw(id, btn) {
+  var el = $(id);
+  var show = el.type === 'password';
+  el.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'Hide' : 'Show';
+}
+function getSaved(role) {
+  try {
+    var raw = localStorage.getItem('blynzo_saved_' + role);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function saveCreds(role, id, remember) {
+  try {
+    if (remember) localStorage.setItem('blynzo_saved_' + role, JSON.stringify({ id: id }));
+    else localStorage.removeItem('blynzo_saved_' + role);
+  } catch (e) {}
+}
+function doAdminLogin() {
+  var id = $('al-id').value.trim(), pw = $('al-pw').value, rem = $('al-rem').checked;
+  if (!id || !pw) { toast('Enter User ID and password.', 'err'); return; }
+  call('apiAdminLogin', id, pw, rem).then(function (r) {
+    saveCreds('admin', id, rem);
+    onLoginSuccess(r);
+  }).catch(function () {});
+}
+function doSellerLogin() {
+  var id = $('sl-id').value.trim(), pin = $('sl-pin').value.trim(), rem = $('sl-rem').checked;
+  if (!id || !pin) { toast('Enter Seller ID / mobile and PIN.', 'err'); return; }
+  call('apiSellerLogin', id, pin, rem).then(function (r) {
+    saveCreds('seller', id, rem);
+    onLoginSuccess(r);
+  }).catch(function () {});
+}
+function forgotPin() {
+  openModal('<h3>Forgot PIN</h3>' +
+    '<label class="req">Seller ID or Mobile</label><input id="fp-id" placeholder="BN9K72 or mobile">' +
+    '<label>Contact (phone / WhatsApp / email)</label><input id="fp-contact" placeholder="How can admin reach you?">' +
+    '<div class="hint">Your PIN is stored securely (salted hash) and cannot be shown to anyone. Admin will verify your identity and reset your PIN.</div>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="fp-send">Send Request</button></div>');
+  $('fp-send').onclick = function () {
+    var id = $('fp-id').value.trim();
+    if (!id) { toast('Enter your Seller ID or mobile.', 'err'); return; }
+    call('apiForgotSellerPin', id, $('fp-contact').value.trim()).then(function (msg) { closeModal(); toast(msg, 'ok'); }).catch(function () {});
+  };
+}
+function onLoginSuccess(r) {
+  S.token = r.token; S.role = r.role;
+  try {
+    localStorage.setItem('blynzo_token', r.token);
+    localStorage.setItem('blynzo_role', r.role);
+    localStorage.setItem('blynzo_exp', String(r.exp));
+  } catch (e) {}
+  enterShell();
+}
+
+/* ---------- registration wizard ---------- */
+var REG = {};
+var REG_STEPS = [
+  { title: 'Personal Information', sub: 'Tell us about yourself' },
+  { title: 'Identity Verification', sub: 'Aadhaar & PAN are completely optional' },
+  { title: 'Shop Information', sub: 'Details of your shop' },
+  { title: 'Bank & Payment Details', sub: 'For receiving your payments securely' },
+  { title: 'Review & Submit', sub: 'Check everything, then submit' }
+];
+var REG_FIELDS = [
+  [ { k:'fullName', label:'Full Name', req:1, ph:'Your full name' },
+    { k:'fatherName', label:"Father's Name", req:1, ph:"Father's name" },
+    { k:'mobile', label:'Mobile Number', req:1, type:'tel', ph:'10-digit mobile number' },
+    { k:'whatsapp', label:'WhatsApp Number', type:'tel', ph:'Same as mobile if not different' },
+    { k:'email', label:'Email Address', type:'email', ph:'you@example.com' },
+    { k:'dob', label:'Date of Birth', type:'date' },
+    { k:'gender', label:'Gender', type:'select', opts:['Male','Female','Other'] },
+    { k:'address', label:'Full Address', type:'textarea', ph:'House, street, area' },
+    { k:'village', label:'Village / Town', ph:'Village or town name' },
+    { k:'district', label:'District', req:1, ph:'District' },
+    { k:'state', label:'State', req:1, ph:'State' },
+    { k:'pincode', label:'PIN Code', type:'tel', ph:'6-digit PIN code' },
+    { k:'profilePhoto', label:'Profile Photo', type:'file', hint:'Optional, max 5 MB' } ],
+  [ { k:'aadhaar', label:'Aadhaar Number', type:'tel', ph:'Optional - 12 digits', hint:'Optional. Stored securely, visible to Admin only.' },
+    { k:'pan', label:'PAN Number', ph:'Optional - e.g. ABCDE1234F', hint:'Optional. Stored securely, visible to Admin only.' },
+    { k:'aadhaarDoc', label:'Aadhaar Document Upload', type:'file', accept:'image/*,application/pdf', hint:'Optional' },
+    { k:'panDoc', label:'PAN Document Upload', type:'file', accept:'image/*,application/pdf', hint:'Optional' } ],
+  [ { k:'shopName', label:'Shop Name', req:1, ph:'Your shop name' },
+    { k:'shopLogo', label:'Shop Logo / Photo', type:'file', hint:'Optional' },
+    { k:'shopOwnerName', label:'Shop Owner Name', ph:'Same as full name if same' },
+    { k:'shopMobile', label:'Shop Mobile Number', type:'tel', ph:'Shop contact number' },
+    { k:'shopAddress', label:'Shop Address', type:'textarea', ph:'Complete shop address' },
+    { k:'shopCategory', label:'Shop Category', ph:'e.g. Grocery, Electronics, Clothing' },
+    { k:'businessType', label:'Business Type', type:'select', opts:['Retail','Wholesale','Manufacturing','Service','Distributor','Other'] },
+    { k:'shopDescription', label:'Shop Description', type:'textarea', ph:'About your shop, products, services' },
+    { k:'openTime', label:'Opening Time', type:'time' },
+    { k:'closeTime', label:'Closing Time', type:'time' },
+    { k:'weeklyHoliday', label:'Weekly Holiday', type:'select', opts:['None','Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] },
+    { k:'shopLocation', label:'Shop Location', ph:'Landmark or Google Maps link' },
+    { k:'services', label:'Available Services', ph:'e.g. Home delivery, UPI accepted, Wholesale' } ],
+  [ { k:'accountHolder', label:'Account Holder Name', req:1, ph:'Name as per bank records' },
+    { k:'bankName', label:'Bank Name', req:1, ph:'Bank name' },
+    { k:'accountNumber', label:'Account Number', req:1, type:'tel', ph:'Bank account number', hint:'Encrypted at rest; never shown publicly.' },
+    { k:'ifsc', label:'IFSC Code', req:1, ph:'e.g. SBIN0001234' },
+    { k:'upiId', label:'UPI ID', ph:'e.g. name@upi' },
+    { k:'bankDoc', label:'Bank Document (Passbook / Cheque)', type:'file', accept:'image/*,application/pdf', hint:'Optional' } ]
+];
+function showRegister() {
+  REG = { step: 0, data: {} };
+  $('auth-root').innerHTML =
+    '<div class="auth-wrap" style="align-items:flex-start"><div class="auth-card" style="max-width:520px">' +
+    '<div class="stepper" id="reg-stepper"></div>' +
+    '<div class="step-title" id="reg-title"></div><div class="step-sub" id="reg-sub"></div>' +
+    '<div id="reg-body"></div>' +
+    '<div class="modal-actions" style="margin-top:18px">' +
+    '<button class="btn btn-ghost" id="reg-back" onclick="regNav(-1)">Back</button>' +
+    '<button class="btn btn-lime grow" id="reg-next" onclick="regNav(1)">Next</button></div>' +
+    '<div class="auth-alt"><span class="link" onclick="renderWelcome()">Cancel registration</span></div>' +
+    '</div></div>';
+  regRender();
+}
+function regFieldsForStep(i) {
+  if (i < 4) return REG_FIELDS[i];
+  return [];
+}
+function regRender() {
+  var st = REG.step;
+  $('reg-stepper').innerHTML = REG_STEPS.map(function (x, i) { return '<div class="' + (i <= st ? 'on' : '') + '"></div>'; }).join('');
+  $('reg-title').textContent = 'Step ' + (st + 1) + ' of 5: ' + REG_STEPS[st].title;
+  $('reg-sub').textContent = REG_STEPS[st].sub;
+  $('reg-back').style.visibility = st === 0 ? 'hidden' : 'visible';
+  $('reg-next').textContent = st === 4 ? 'Submit Registration' : 'Next';
+  if (st === 4) { regRenderReview(); return; }
+  $('reg-body').innerHTML = buildFields(regFieldsForStep(st), REG.data);
+}
+function regNav(dir) {
+  if (dir === 1 && REG.step === 4) { regSubmit(); return; }
+  if (dir === 1) {
+    var defs = regFieldsForStep(REG.step);
+    if (defs.length) {
+      var vals;
+      try { vals = collectFields(defs); } catch (e) { toast(e.message, 'err'); return; }
+      var files = {};
+      var pending = [];
+      defs.forEach(function (f) {
+        if (f.type === 'file') {
+          if (vals[f.k]) pending.push(fileToB64(vals[f.k]).then(function (b) { files[f.k] = b; }));
+          delete vals[f.k];
+        }
+      });
+      if (vals.mobile && !/^\d{10}$/.test(String(vals.mobile).replace(/\D/g, '').slice(-10))) {
+        if (REG.step === 0 && String(vals.mobile).replace(/\D/g, '').length < 10) { toast('Enter a valid 10-digit mobile number.', 'err'); return; }
+      }
+      Promise.all(pending).then(function () {
+        Object.assign(REG.data, vals, files);
+        REG.step++;
+        regRender();
+        window.scrollTo(0, 0);
+      }).catch(function (e) { toast(e.message, 'err'); });
+      return;
+    }
+    REG.step++;
+    regRender();
+    window.scrollTo(0, 0);
+    return;
+  }
+  REG.step = Math.max(0, REG.step + dir);
+  regRender();
+  window.scrollTo(0, 0);
+}
+function regKV(label, val) { return '<div class="kv"><b>' + esc(label) + '</b><span>' + esc(val || '-') + '</span></div>'; }
+function regRenderReview() {
+  var d = REG.data;
+  $('reg-body').innerHTML =
+    '<div class="review-block"><h4>Personal</h4>' + regKV('Full Name', d.fullName) + regKV("Father's Name", d.fatherName) + regKV('Mobile', d.mobile) + regKV('WhatsApp', d.whatsapp) + regKV('Email', d.email) + regKV('DOB', d.dob) + regKV('Gender', d.gender) + regKV('Address', [d.address, d.village, d.district, d.state, d.pincode].filter(Boolean).join(', ')) + '</div>' +
+    '<div class="review-block"><h4>Identity (Optional)</h4>' + regKV('Aadhaar', d.aadhaar ? 'Submitted (secured)' : '') + regKV('PAN', d.pan ? 'Submitted (secured)' : '') + regKV('Documents', (d.aadhaarDoc || d.panDoc) ? 'Uploaded' : '') + '</div>' +
+    '<div class="review-block"><h4>Shop</h4>' + regKV('Shop Name', d.shopName) + regKV('Owner', d.shopOwnerName) + regKV('Mobile', d.shopMobile) + regKV('Address', d.shopAddress) + regKV('Category', d.shopCategory) + regKV('Business Type', d.businessType) + regKV('Timings', (d.openTime || '') + ' - ' + (d.closeTime || '')) + regKV('Weekly Holiday', d.weeklyHoliday) + regKV('Location', d.shopLocation) + regKV('Services', d.services) + '</div>' +
+    '<div class="review-block"><h4>Bank & Payment</h4>' + regKV('Holder', d.accountHolder) + regKV('Bank', d.bankName) + regKV('Account', d.accountNumber ? 'xxxx' + String(d.accountNumber).slice(-4) : '') + regKV('IFSC', d.ifsc) + regKV('UPI ID', d.upiId) + '</div>' +
+    '<button class="btn btn-ghost btn-sm" onclick="regEdit()">Edit Details</button>' +
+    '<div class="hint mt">By submitting you confirm the details are correct. You can register now and start after admin approval.</div>';
+}
+function regEdit() { REG.step = 0; regRender(); }
+function regSubmit() {
+  var d = REG.data;
+  showLoader();
+  Promise.all([]).then(function () {
+    return api('apiRegisterSeller', d);
+  }).then(function (res) {
+    hideLoader();
+    showRegSuccess(res);
+  }).catch(function (e) { hideLoader(); toast((e && e.message) || 'Registration failed.', 'err'); });
+}
+function showRegSuccess(res) {
+  $('auth-root').innerHTML =
+    '<div class="success-wrap"><div class="success-card">' +
+    '<div class="tick">&#10003;</div>' +
+    '<div style="font-size:21px;font-weight:900;margin-bottom:4px">Registration Successful!</div>' +
+    '<div style="color:var(--muted);font-size:13.5px;margin-bottom:14px">Welcome ' + esc(res.name) + '. Save these credentials securely - your PIN will not be shown again.</div>' +
+    '<div class="cred-box"><div class="lbl">SELLER ID</div><div class="val">' + esc(res.sellerId) + '</div>' +
+    '<div class="lbl">PIN</div><div class="val">' + esc(res.pin) + '</div></div>' +
+    '<div class="hint" style="margin-bottom:12px">Your account is pending admin approval. You can log in now, but products, orders and business features unlock after approval.</div>' +
+    '<div class="cred-actions">' +
+    '<button class="btn btn-dark btn-sm" onclick="copyText(\'' + esc(res.sellerId) + '\')">Copy Seller ID</button>' +
+    '<button class="btn btn-dark btn-sm" onclick="copyText(\'' + esc(res.pin) + '\')">Copy PIN</button>' +
+    '<button class="btn btn-ghost btn-sm" onclick="downloadCreds(\'' + esc(res.sellerId) + '\',\'' + esc(res.pin) + '\')">Save</button></div>' +
+    '<button class="btn btn-lime mt" onclick="showSellerLogin()">Continue to Seller Login</button>' +
+    '</div></div>';
+}
+function downloadCreds(id, pin) {
+  downloadTxt('BLYNZO_Credentials_' + id + '.txt', 'BLYNZO Seller Partner Credentials\n\nSELLER ID: ' + id + '\nPIN: ' + pin + '\n\nKeep this safe. Do not share your PIN.\nGenerated: ' + new Date().toLocaleString());
+}
+
+/* ================= SHELL & NAVIGATION ================= */
+var NAV = {
+  admin: [
+    ['dashboard', 'Dashboard', '&#128202;'],
+    ['sellers', 'Sellers', '&#127962;'],
+    ['orders', 'Orders', '&#128230;'],
+    ['products', 'Products', '&#128096;'],
+    ['commissions', 'Commissions', '&#128176;'],
+    ['payments', 'Payments', '&#128181;'],
+    ['transactions', 'Transactions', '&#129534;'],
+    ['meetings', 'Meetings', '&#128197;'],
+    ['notices', 'Notices', '&#128227;'],
+    ['messages', 'Messages', '&#128172;'],
+    ['tickets', 'Support Tickets', '&#127909;'],
+    ['categories', 'Categories', '&#127991;'],
+    ['logs', 'Activity Logs', '&#128220;'],
+    ['settings', 'Settings', '&#9881;']
+  ],
+  seller: [
+    ['dashboard', 'Dashboard', '&#128202;'],
+    ['shop', 'My Shop', '&#127972;'],
+    ['myproducts', 'My Products', '&#128096;'],
+    ['addproduct', 'Add Product', '&#10133;'],
+    ['categories', 'Categories', '&#127991;'],
+    ['orders', 'My Orders', '&#128230;'],
+    ['inventory', 'Inventory', '&#128729;'],
+    ['sales', 'Sales Reports', '&#128200;'],
+    ['commission', 'Commission', '&#128176;'],
+    ['payments', 'Payments', '&#128181;'],
+    ['transactions', 'Transactions', '&#129534;'],
+    ['meetings', 'Meetings', '&#128197;'],
+    ['notifications', 'Notifications', '&#128276;'],
+    ['messages', 'Messages', '&#128172;'],
+    ['support', 'Support', '&#127909;'],
+    ['profile', 'Profile', '&#128100;'],
+    ['settings', 'Settings', '&#9881;']
+  ]
+};
+var BOTTOM = { admin: ['dashboard', 'sellers', 'orders', 'notifications'], seller: ['dashboard', 'orders', 'myproducts', 'notifications'] };
+
+function enterShell() {
+  $('auth-root').style.display = 'none';
+  $('shell').style.display = 'block';
+  call('apiGetBootstrap', S.token).then(function (boot) {
+    S.boot = boot;
+    S.role = boot.role;
+    applyHeader();
+    go('dashboard');
+    startTimers();
+  }).catch(function () {});
+}
+function applyHeader() {
+  var b = S.boot || {};
+  $('hd-brand').textContent = b.brand || 'BLYNZO';
+  var logo = $('hd-logo');
+  logo.innerHTML = b.logo ? '<img src="' + esc(b.logo) + '" onerror="this.remove()">' : 'B';
+  var sub = $('hd-sub');
+  if (S.role === 'admin') sub.textContent = 'Admin Console';
+  else sub.textContent = (b.shop && b.shop.Shop_Name) || (b.seller && b.seller.name) || 'Seller Partner';
+  updateBell(b.unread || 0);
+  renderSidebar();
+  renderBottomNav();
+}
+function updateBell(n) {
+  var d = $('bell-dot');
+  if (!d) return;
+  if (n > 0) { d.style.display = 'flex'; d.textContent = n > 99 ? '99+' : n; }
+  else d.style.display = 'none';
+}
+function renderSidebar() {
+  var items = NAV[S.role] || [];
+  $('sidebar').innerHTML =
+    '<div class="side-brand"><div class="mini-logo" style="width:34px;height:34px;font-size:12px">' + (S.boot && S.boot.logo ? '<img src="' + esc(S.boot.logo) + '" onerror="this.remove()">' : 'B') + '</div>' +
+    '<div><div style="font-weight:900;letter-spacing:2px">' + esc((S.boot && S.boot.brand) || 'BLYNZO') + '</div><div style="font-size:10px;color:#9aa48b">' + (S.role === 'admin' ? 'Admin Console' : 'Seller Partner') + '</div></div></div>' +
+    items.map(function (it) {
+      return '<div class="nav-item' + (S.page === it[0] ? ' on' : '') + '" onclick="go(\'' + it[0] + '\')"><span class="ic">' + it[2] + '</span>' + it[1] + '</div>';
+    }).join('') +
+    '<div class="nav-sec">SESSION</div>' +
+    '<div class="nav-item" onclick="doLogout()"><span class="ic">&#x23FB;</span>Secure Logout</div>';
+}
+function renderBottomNav() {
+  var keys = BOTTOM[S.role] || [];
+  var all = NAV[S.role] || [];
+  $('bottomnav').innerHTML = keys.map(function (k) {
+    var it = all.filter(function (x) { return x[0] === k; })[0] || [k, k, '&#128196;'];
+    var label = k === 'notifications' ? 'Alerts' : it[1];
+    var badge = (k === 'notifications' && S.boot && S.boot.unread) ? ' <span class="dot" style="position:static;display:inline-flex">' + S.boot.unread + '</span>' : '';
+    return '<button class="' + (S.page === k ? 'on' : '') + '" onclick="go(\'' + k + '\')"><span class="ic">' + it[2] + '</span>' + label + badge + '</button>';
+  }).join('') +
+  '<button onclick="toggleSidebar(true)"><span class="ic">&#9776;</span>Menu</button>';
+}
+function toggleSidebar(open) {
+  $('sidebar').classList.toggle('open', open);
+  $('scrim').classList.toggle('open', open);
+}
+function go(page, params) {
+  S.page = page;
+  S.params = params || {};
+  S.cache.pg = {};
+  toggleSidebar(false);
+  renderSidebar();
+  renderBottomNav();
+  refresh();
+}
+function refresh() {
+  var r = PAGES[S.page];
+  if (!r) { $('content').innerHTML = '<div class="empty">Page not found.</div>'; return; }
+  $('content').innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+  Promise.resolve().then(r).catch(function (e) {
+    if (e && (e.message === 'SESSION_EXPIRED' || e.message === 'ACCESS_DENIED')) return;
+    $('content').innerHTML = '<div class="empty"><div class="e-ic">&#9888;</div>' + esc((e && e.message) || 'Failed to load. Check your network and try again.') + '<div class="mt"><button class="btn btn-ghost btn-sm" onclick="refresh()">Retry</button></div></div>';
+  });
+}
+function startTimers() {
+  stopTimers();
+  S.timers.boot = setInterval(function () {
+    if (!S.token) return;
+    api('apiGetBootstrap', S.token).then(function (b) {
+      var old = S.boot && S.boot.unread;
+      S.boot = Object.assign({}, S.boot, b);
+      updateBell(b.unread);
+      if (b.unread > 0 && old === 0) toast('You have ' + b.unread + ' new notification(s).');
+    }).catch(function () {});
+  }, 60000);
+  S.timers.page = setInterval(function () {
+    if (!S.token) return;
+    if (['dashboard', 'orders', 'notifications', 'messages'].indexOf(S.page) >= 0) {
+      if (S.page === 'messages') return;
+      refresh();
+    }
+  }, 30000);
+}
+function stopTimers() {
+  Object.keys(S.timers).forEach(function (k) { clearInterval(S.timers[k]); });
+  S.timers = {};
+}
+function forceLogout(msg) {
+  stopTimers();
+  try { localStorage.removeItem('blynzo_token'); localStorage.removeItem('blynzo_role'); localStorage.removeItem('blynzo_exp'); } catch (e) {}
+  S.token = null; S.role = null; S.boot = null;
+  toast(msg || 'Logged out.', 'err');
+  renderWelcome();
+}
+function doLogout() {
+  confirmDialog('Log out from BLYNZO?', function () {
+    var tk = S.token;
+    stopTimers();
+    try { localStorage.removeItem('blynzo_token'); localStorage.removeItem('blynzo_role'); localStorage.removeItem('blynzo_exp'); } catch (e) {}
+    if (tk) api('apiLogout', tk).catch(function () {});
+    S.token = null; S.role = null; S.boot = null;
+    renderWelcome();
+  });
+}
+function openNotifications() {
+  if (S.role === 'admin') go('notices');
+  else go('notifications');
+}
+
+/* ================= ADMIN PAGES ================= */
+var PAGES = {};
+
+PAGES.dashboard = function () {
+  if (S.role === 'seller') return sellerDashboard();
+  var df = dFilterArgs('admin_dash');
+  return call('apiGetDashboardStats', S.token, df[0], df[1], df[2]).then(function (st) {
+    var c = '';
+    var stat = function (n, l, ic, lime) { return '<div class="card stat' + (lime ? ' lime' : '') + '"><span class="ic">' + ic + '</span><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
+    var html =
+      '<div class="page-title">Admin Dashboard ' + statusChip('Active') + '</div>' +
+      dateFilterBar('admin_dash') +
+      '<div class="sec-h">Sellers</div><div class="cards c3">' +
+      stat(st.sellers.total, 'Total Sellers', '&#127962;', 1) + stat(st.sellers.active, 'Active Sellers', '&#9989;') +
+      stat(st.sellers.inactive, 'Inactive Sellers', '&#128164;') + stat(st.sellers.pending, 'Pending Approvals', '&#9203;', 1) +
+      stat(st.sellers.suspended, 'Suspended', '&#9940;') + stat(st.sellers.rejected, 'Rejected', '&#10060;') + '</div>' +
+      '<div class="sec-h">Products</div><div class="cards">' +
+      stat(st.products.total, 'Total Products', '&#128096;') + stat(st.products.active, 'Active Products', '&#9989;') +
+      stat(st.products.outOfStock, 'Out of Stock', '&#128230;', 1) + stat(st.products.pendingApproval, 'Pending Approvals', '&#9203;') + '</div>' +
+      '<div class="sec-h">Orders</div><div class="cards">' +
+      stat(st.orders.total, 'Total Orders', '&#128230;') + stat(st.orders.new, 'New Orders', '&#128229;', 1) +
+      stat(st.orders.pending, 'Pending Orders', '&#9203;') + stat(st.orders.accepted, 'Accepted', '&#128666;') +
+      stat(st.orders.completed, 'Completed', '&#9989;', 1) + stat(st.orders.cancelled, 'Cancelled / Rejected', '&#10060;') + '</div>' +
+      '<div class="sec-h">Business &amp; Finance</div><div class="cards c3">' +
+      stat(money(st.finance.totalSales), 'Total Sales (Completed)', '&#128176;', 1) +
+      stat(money(st.finance.commission), 'BLYNZO Commission', '&#127991;', 1) +
+      stat(money(st.finance.sellerEarnings), 'Seller Earnings', '&#128181;') +
+      stat(money(st.finance.pendingPayments), 'Pending Payments', '&#9203;') +
+      stat(money(st.finance.paidPayments), 'Paid Payments', '&#9989;') +
+      stat(st.finance.totalTransactions, 'Total Transactions', '&#129534;') +
+      stat(st.finance.totalMeetings, 'Total Meetings', '&#128197;') + '</div>' +
+      '<div class="mt"><button class="btn btn-dark btn-sm" onclick="go(\'ordercreate\')">+ Create New Order</button> ' +
+      '<button class="btn btn-ghost btn-sm" onclick="go(\'sellers\',{status:\'Pending\'})">Review Pending Sellers (' + st.sellers.pending + ')</button></div>';
+    $('content').innerHTML = html;
+  });
+};
+
+PAGES.sellers = function () {
+  var p = S.params || {};
+  if (p.sellerId) return sellerDetailPage(p.sellerId);
+  var q = S.cache['sel_q'] || '';
+  var status = p.status || S.cache['sel_status'] || 'all';
+  var df = dFilterArgs('sel_d');
+  return call('apiGetSellers', S.token, q, status, df[0], df[1], df[2]).then(function (list) {
+    var pg = paginate('sellers', list);
+    var statusOpts = ['all', 'Pending', 'Active', 'Inactive', 'Suspended', 'Rejected', 'Archived'];
+    var html =
+      '<div class="page-title">Seller Management <button class="btn btn-lime btn-sm" onclick="sellerForm()">+ Add Seller</button> ' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportSellers()">Export CSV</button></div>' +
+      '<div class="searchbar"><input id="sel-q" placeholder="Search ID, name, mobile, district..." value="' + esc(q) + '" onkeydown="if(event.key===\'Enter\'){S.cache[\'sel_q\']=this.value;S.cache[\'pg_sellers\']=1;refresh();}">' +
+      '<select onchange="S.cache[\'sel_status\']=this.value;S.cache[\'pg_sellers\']=1;refresh();">' +
+      statusOpts.map(function (o) { return '<option value="' + o + '"' + (status === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Statuses' : o) + '</option>'; }).join('') + '</select></div>' +
+      dateFilterBar('sel_d') +
+      (pg.slice.length ? pg.slice.map(function (row) {
+        var se = row.seller;
+        return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(se.name) + ' <span class="chip black">' + esc(se.sellerId) + '</span></div>' +
+          '<div class="li-sub">' + esc(row.shopName || 'No shop') + ' &bull; ' + esc(se.mobile) + ' &bull; ' + esc(se.district || '-') + ' &bull; Commission ' + esc(se.commission) + '%<br>Registered: ' + esc(String(se.registeredAt || '').slice(0, 10)) + '</div></div>' +
+          '<div>' + statusChip(se.status) + '</div></div>' +
+          '<div class="li-actions">' +
+          '<button class="btn btn-ghost btn-sm" onclick="go(\'sellers\',{sellerId:\'' + se.sellerId + '\'})">View Profile</button>' +
+          (se.status === 'Pending' ? '<button class="btn btn-lime btn-sm" onclick="sellerAction(\'' + se.sellerId + '\',\'approve\')">Approve</button><button class="btn btn-danger btn-sm" onclick="sellerAction(\'' + se.sellerId + '\',\'reject\')">Reject</button>' : '') +
+          (se.status === 'Active' ? '<button class="btn btn-ghost btn-sm" onclick="sellerAction(\'' + se.sellerId + '\',\'deactivate\')">Deactivate</button><button class="btn btn-danger btn-sm" onclick="sellerAction(\'' + se.sellerId + '\',\'suspend\')">Suspend</button>' : '') +
+          (['Inactive', 'Suspended'].indexOf(se.status) >= 0 ? '<button class="btn btn-lime btn-sm" onclick="sellerAction(\'' + se.sellerId + '\',\'activate\')">Activate</button>' : '') +
+          '<button class="btn btn-ghost btn-sm" onclick="sellerForm(\'' + se.sellerId + '\')">Edit</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="resetPin(\'' + se.sellerId + '\')">Reset PIN</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="sellerAction(\'' + se.sellerId + '\',\'delete\')">Delete</button>' +
+          '</div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#127962;</div>No sellers found for this filter.</div>');
+    $('content').innerHTML = html;
+  });
+};
+function sellerAction(id, action) {
+  if (action === 'delete') {
+    confirmDialog('Delete seller ' + id + '? Profile and shop data will be removed. Orders, payments and transaction history are preserved.', function () {
+      call('apiSetSellerStatus', S.token, id, 'delete').then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    }, true);
+    return;
+  }
+  var ask = action === 'reject';
+  var run = function (reason) {
+    call('apiSetSellerStatus', S.token, id, action, reason || '').then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+  };
+  if (ask) {
+    openModal('<h3>Reject Seller</h3><label>Reason / corrections requested</label><textarea id="rj-reason" rows="3" placeholder="Explain why or what to correct"></textarea>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" id="rj-go">Reject Seller</button></div>');
+    $('rj-go').onclick = function () { var rsn = $('rj-reason').value; closeModal(); run(rsn); };
+    return;
+  }
+  var labels = { approve: 'Approve and activate', activate: 'Activate', deactivate: 'Deactivate', suspend: 'Suspend', archive: 'Archive' };
+  confirmDialog(labels[action] + ' seller ' + id + '?', function () { run(); });
+}
+function resetPin(id) {
+  confirmDialog('Generate a new PIN for ' + id + '? The old PIN stops working immediately.', function () {
+    call('apiResetSellerPin', S.token, id).then(function (r) {
+      openModal('<h3>New PIN for ' + esc(id) + '</h3><div class="cred-box" style="text-align:center"><div class="lbl">NEW PIN</div><div class="val">' + esc(r.pin) + '</div></div>' +
+        '<div class="hint">Share this with the seller over a secure channel. It is shown only once.</div>' +
+        '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Close</button><button class="btn btn-dark" onclick="copyText(\'' + r.pin + '\')">Copy PIN</button></div>');
+    }).catch(function () {});
+  });
+}
+function sellerForm(id) {
+  if (id) {
+    call('apiGetSellerDetail', S.token, id).then(function (d) {
+      var se = d.seller;
+      openModal('<h3>Edit Seller: ' + esc(id) + '</h3>' + buildFields([
+        { k:'fullName', label:'Full Name', req:1 }, { k:'fatherName', label:"Father's Name" },
+        { k:'mobile', label:'Mobile', req:1 }, { k:'whatsapp', label:'WhatsApp' }, { k:'email', label:'Email', type:'email' },
+        { k:'dob', label:'DOB', type:'date' }, { k:'gender', label:'Gender', type:'select', opts:['','Male','Female','Other'] },
+        { k:'address', label:'Address', type:'textarea' }, { k:'village', label:'Village / Town' },
+        { k:'district', label:'District' }, { k:'state', label:'State' }, { k:'pincode', label:'PIN Code' }
+      ], se) +
+      '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="se-save">Save Changes</button></div>');
+      $('se-save').onclick = function () {
+        var data;
+        try { data = collectFields(SELLER_EDIT_FIELDS); } catch (e) { toast(e.message, 'err'); return; }
+        data.sellerId = id;
+        call('apiSaveSeller', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+      };
+    }).catch(function () {});
+    return;
+  }
+  openModal('<h3>Add Seller (creates credentials automatically)</h3>' + buildFields([
+    { k:'fullName', label:'Full Name', req:1 }, { k:'fatherName', label:"Father's Name" },
+    { k:'mobile', label:'Mobile', req:1 }, { k:'whatsapp', label:'WhatsApp' }, { k:'email', label:'Email', type:'email' },
+    { k:'district', label:'District', req:1 }, { k:'state', label:'State', req:1 }
+  ]) +
+  '<div class="hint">A unique Seller ID (BN9...) and PIN (933...) are generated automatically. Seller starts as Pending.</div>' +
+  '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="se-add">Create Seller</button></div>');
+  $('se-add').onclick = function () {
+    var data;
+    try { data = collectFields(SELLER_ADD_FIELDS); } catch (e) { toast(e.message, 'err'); return; }
+    call('apiSaveSeller', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); showRegSuccess(r); refresh(); }).catch(function () {});
+  };
+}
+var SELLER_EDIT_FIELDS = [
+  { k:'fullName', label:'Full Name', req:1 }, { k:'fatherName', label:"Father's Name" },
+  { k:'mobile', label:'Mobile', req:1 }, { k:'whatsapp', label:'WhatsApp' }, { k:'email', label:'Email', type:'email' },
+  { k:'dob', label:'DOB', type:'date' }, { k:'gender', label:'Gender', type:'select', opts:['','Male','Female','Other'] },
+  { k:'address', label:'Address', type:'textarea' }, { k:'village', label:'Village / Town' },
+  { k:'district', label:'District' }, { k:'state', label:'State' }, { k:'pincode', label:'PIN Code' }
+];
+var SELLER_ADD_FIELDS = [
+  { k:'fullName', label:'Full Name', req:1 }, { k:'fatherName', label:"Father's Name" },
+  { k:'mobile', label:'Mobile', req:1 }, { k:'whatsapp', label:'WhatsApp' }, { k:'email', label:'Email', type:'email' },
+  { k:'district', label:'District', req:1 }, { k:'state', label:'State', req:1 }
+];
+function exportSellers() {
+  call('apiExportData', S.token, 'sellers', 'all').then(function (rows) { exportCSV(rows, 'blynzo_sellers'); }).catch(function () {});
+}
+function sellerDetailPage(id) {
+  return call('apiGetSellerDetail', S.token, id).then(function (d) {
+    var se = d.seller;
+    var kv = function (l, v) { return '<div class="kv"><b>' + esc(l) + '</b><span>' + esc(v || '-') + '</span></div>'; };
+    var ordersHtml = d.orders.slice(0, 8).map(function (o) {
+      return '<div class="list-item"><div class="li-top"><div class="li-title">' + esc(o.Order_No) + '</div>' + statusChip(o.Status) + '</div>' +
+        '<div class="li-sub">' + esc(o.Customer_Name) + ' &bull; ' + money(o.Final_Amount) + ' &bull; ' + esc(String(o.Created_At).slice(0, 10)) + '</div></div>';
+    }).join('') || '<div class="empty">No orders yet.</div>';
+    var productsHtml = d.products.slice(0, 8).map(function (p) {
+      return '<div class="list-item"><div class="li-top"><div class="li-title">' + esc(p.Name) + '</div>' + statusChip(p.Status) + '</div>' +
+        '<div class="li-sub">' + money(p.Selling_Price) + ' &bull; Stock: ' + esc(p.Stock) + '</div></div>';
+    }).join('') || '<div class="empty">No products yet.</div>';
+    var payHtml = d.payments.slice(0, 6).map(function (p) {
+      return '<div class="list-item"><div class="li-top"><div class="li-title">' + money(p.Amount) + ' - ' + esc(p.Method) + '</div>' + statusChip(p.Status) + '</div>' +
+        '<div class="li-sub">' + esc(p.Payment_ID) + ' &bull; ' + esc(String(p.Payment_Date || '').slice(0, 10)) + (p.Txn_ID ? ' &bull; Txn: ' + esc(p.Txn_ID) : '') + '</div></div>';
+    }).join('') || '<div class="empty">No payments yet.</div>';
+    $('content').innerHTML =
+      '<div class="page-title"><span class="link" onclick="go(\'sellers\')">&larr; Sellers</span> &nbsp;' + esc(se.name) + ' <span class="chip black">' + esc(se.sellerId) + '</span> ' + statusChip(se.status) + '</div>' +
+      '<div class="cards c3">' +
+      '<div class="card stat lime"><div class="n">' + money(d.stats.totalSales) + '</div><div class="l">Total Sales</div></div>' +
+      '<div class="card stat"><div class="n">' + money(d.stats.totalCommission) + '</div><div class="l">BLYNZO Commission (' + esc(d.commission) + '%)</div></div>' +
+      '<div class="card stat"><div class="n">' + money(d.stats.earnings) + '</div><div class="l">Seller Earnings</div></div>' +
+      '<div class="card stat"><div class="n">' + d.stats.totalOrders + '</div><div class="l">Orders (' + d.stats.completedOrders + ' completed)</div></div>' +
+      '<div class="card stat"><div class="n">' + d.stats.totalProducts + '</div><div class="l">Products</div></div>' +
+      '<div class="card stat"><div class="n">' + money(d.stats.pendingPayments) + '</div><div class="l">Pending Payments</div></div></div>' +
+      '<div class="li-actions mt">' +
+      '<button class="btn btn-lime btn-sm" onclick="sellerForm(\'' + id + '\')">Edit Seller</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="resetPin(\'' + id + '\')">Reset PIN</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="notifySeller(\'' + id + '\')">Send Notification</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="go(\'messages\',{sellerId:\'' + id + '\'})">Message</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="commissionForm(\'' + id + '\')">Set Commission</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="paymentForm(\'' + id + '\')">Pay Seller</button>' +
+      (se.status === 'Pending' ? '<button class="btn btn-lime btn-sm" onclick="sellerAction(\'' + id + '\',\'approve\')">Approve</button><button class="btn btn-danger btn-sm" onclick="sellerAction(\'' + id + '\',\'reject\')">Reject</button>' : '') +
+      (se.status === 'Active' ? '<button class="btn btn-danger btn-sm" onclick="sellerAction(\'' + id + '\',\'suspend\')">Suspend</button><button class="btn btn-ghost btn-sm" onclick="sellerAction(\'' + id + '\',\'deactivate\')">Deactivate</button>' : '') +
+      '</div>' +
+      '<div class="sec-h">Shop Details</div><div class="panel">' + kv('Shop Name', d.shop.Shop_Name) + kv('Owner', d.shop.Owner_Name) + kv('Mobile', d.shop.Shop_Mobile) + kv('Address', d.shop.Shop_Address) + kv('Category', d.shop.Category) + kv('Business Type', d.shop.Business_Type) + kv('Timings', (d.shop.Open_Time || '') + ' - ' + (d.shop.Close_Time || '')) + kv('Weekly Holiday', d.shop.Weekly_Holiday) + kv('Location', d.shop.Location) + kv('Services', d.shop.Services) + (d.shop.Change_Request ? '<div class="banner warn mt">Change request from seller:<br>' + esc(d.shop.Change_Request) + '</div>' : '') + '</div>' +
+      '<div class="sec-h">Identity (Admin only)</div><div class="panel">' + kv('Identity Status', d.profile.identityStatus) + kv('Aadhaar', d.profile.aadhaar) + kv('PAN', d.profile.pan) +
+      '<div class="li-actions">' + (d.bank.Holder_Name ? '<span class="hint">Bank: ' + esc(d.bank.Bank_Name) + ' &bull; A/C xxxx' + esc(String(d.bank.Account_Number).slice(-4)) + ' &bull; IFSC ' + esc(d.bank.IFSC) + ' &bull; UPI ' + esc(d.bank.UPI_ID) + '</span>' : '<span class="hint">No bank details.</span>') + '</div>' +
+      '<div class="li-actions">' + d.docs.map(function (doc) { return '<a class="btn btn-ghost btn-sm" href="' + esc(doc.File_URL) + '" target="_blank">' + esc(doc.Doc_Type) + '</a>'; }).join('') + '</div></div>' +
+      '<div class="sec-h">Recent Orders</div>' + ordersHtml +
+      '<div class="sec-h">Recent Products</div>' + productsHtml +
+      '<div class="sec-h">Payments</div>' + payHtml +
+      '<div class="sec-h">Activity Log</div><div class="tbl-wrap"><table class="tbl"><tr><th>When</th><th>Action</th><th>Details</th></tr>' +
+      d.logs.map(function (l) { return '<tr><td>' + esc(l.Created_At) + '</td><td>' + esc(l.Action) + '</td><td>' + esc(l.Details) + '</td></tr>'; }).join('') + '</table></div>' +
+      '<div class="mt"><button class="btn btn-ghost btn-sm" onclick="printSellerReport(\'' + id + '\')">Print Report</button></div>';
+  });
+}
+function printSellerReport(id) {
+  call('apiGetSellerDetail', S.token, id).then(function (d) {
+    var t = '<table><tr><th>Metric</th><th>Value</th></tr>' +
+      '<tr><td>Seller</td><td>' + esc(d.seller.name) + ' (' + esc(d.seller.sellerId) + ')</td></tr>' +
+      '<tr><td>Status</td><td>' + esc(d.seller.status) + '</td></tr>' +
+      '<tr><td>Total Sales</td><td>' + d.stats.totalSales + '</td></tr><tr><td>Commission</td><td>' + d.stats.totalCommission + '</td></tr>' +
+      '<tr><td>Earnings</td><td>' + d.stats.earnings + '</td></tr><tr><td>Orders</td><td>' + d.stats.totalOrders + '</td></tr></table>';
+    printReport('BLYNZO Seller Report - ' + id, t);
+  }).catch(function () {});
+}
+function notifySeller(sellerId) {
+  openModal('<h3>Send Notification to ' + esc(sellerId) + '</h3>' +
+    '<label class="req">Title</label><input id="nt-title">' +
+    '<label class="req">Message</label><textarea id="nt-body" rows="3"></textarea>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="nt-send">Send</button></div>');
+  $('nt-send').onclick = function () {
+    var t = $('nt-title').value.trim(), b = $('nt-body').value.trim();
+    if (!t || !b) { toast('Title and message required.', 'err'); return; }
+    call('apiCreateNotice', S.token, { title: t, body: b, target: 'selected', sellerIds: [sellerId] }).then(function (r) { closeModal(); toast(r.message, 'ok'); }).catch(function () {});
+  };
+}
+
+/* ---------- admin: orders ---------- */
+PAGES.orders = function () {
+  if (S.params.orderId) return orderDetailPage(S.params.orderId);
+  var q = S.cache['ord_q'] || '';
+  var status = S.cache['ord_status'] || 'all';
+  var df = dFilterArgs('ord_d');
+  return call('apiGetOrders', S.token, q, status, df[0], df[1], df[2]).then(function (list) {
+    var pg = paginate('orders', list);
+    var stOpts = ['all', 'New', 'Assigned', 'Pending Acceptance', 'Accepted', 'Processing', 'Ready', 'Completed', 'Cancelled', 'Rejected'];
+    $('content').innerHTML =
+      '<div class="page-title">Order Management <button class="btn btn-lime btn-sm" onclick="go(\'ordercreate\')">+ Create New Order</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportOrders()">Export CSV</button></div>' +
+      '<div class="searchbar"><input id="ord-q" placeholder="Search order no, customer, seller..." value="' + esc(q) + '" onkeydown="if(event.key===\'Enter\'){S.cache[\'ord_q\']=this.value;S.cache[\'pg_orders\']=1;refresh();}">' +
+      '<select onchange="S.cache[\'ord_status\']=this.value;S.cache[\'pg_orders\']=1;refresh();">' + stOpts.map(function (o) { return '<option value="' + o + '"' + (status === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Statuses' : o) + '</option>'; }).join('') + '</select></div>' +
+      dateFilterBar('ord_d') +
+      (pg.slice.length ? pg.slice.map(function (o) {
+        return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(o.Order_No) + ' ' + statusChip(o.Status) + '</div>' +
+          '<div class="li-sub">Seller: ' + esc(o.shopName || o.Seller_ID) + ' &bull; Customer: ' + esc(o.Customer_Name) + ' (' + esc(o.Customer_Phone) + ')<br>Amount: ' + money(o.Final_Amount) + ' &bull; Commission: ' + esc(o.Commission_Percent) + '% (' + money(o.Commission_Amount) + ') &bull; ' + esc(String(o.Created_At).slice(0, 16)) + '</div></div></div>' +
+          '<div class="li-actions"><button class="btn btn-dark btn-sm" onclick="go(\'orders\',{orderId:\'' + o.Order_ID + '\'})">Details</button>' +
+          (['Completed', 'Cancelled'].indexOf(o.Status) < 0 ? '<button class="btn btn-danger btn-sm" onclick="cancelOrder(\'' + o.Order_ID + '\')">Cancel Order</button>' : '') + '</div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#128230;</div>No orders found. Create your first order.</div>');
+  });
+};
+function exportOrders() {
+  call('apiExportData', S.token, 'orders', 'all').then(function (rows) { exportCSV(rows, 'blynzo_orders'); }).catch(function () {});
+}
+function cancelOrder(orderId) {
+  openModal('<h3>Cancel Order</h3><label>Reason</label><textarea id="co-reason" rows="2"></textarea>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Keep Order</button><button class="btn btn-danger" id="co-go">Cancel Order</button></div>');
+  $('co-go').onclick = function () { var r = $('co-reason').value; closeModal(); call('apiCancelOrder', S.token, orderId, r).then(function (x) { toast(x.message, 'ok'); refresh(); }).catch(function () {}); };
+}
+var OC = { sellerId: '', items: [] };
+PAGES.ordercreate = function () {
+  return call('apiGetSellers', S.token, '', 'Active', 'all', '', '').then(function (list) {
+    return call('apiGetProducts', S.token, '', 'all', 'Active', '').then(function (prods) {
+      S.cache.sellers = list.map(function (x) { return x.seller; });
+      S.cache.activeProducts = prods;
+      if (!OC.items) OC.items = [];
+      var sellerOpts = '<option value="">Select Seller</option>' + S.cache.sellers.map(function (se) {
+        return '<option value="' + esc(se.sellerId) + '"' + (OC.sellerId === se.sellerId ? ' selected' : '') + '>' + esc(se.name) + ' (' + esc(se.sellerId) + ') - ' + esc(se.district || '') + '</option>';
+      }).join('');
+      var prodOpts = '<option value="">Select Product</option>' + prods.map(function (p) {
+        return '<option value="' + esc(p.Product_ID) + '">' + esc(p.Name) + ' (' + esc(p.shopName || p.Seller_ID) + ') - ' + money(p.Selling_Price) + '</option>';
+      }).join('');
+      var itemsHtml = OC.items.map(function (it, i) {
+        return '<div class="list-item"><div class="li-top"><div class="li-title">' + esc(it.productName) + '</div><button class="btn btn-danger btn-sm" onclick="ocRemoveItem(' + i + ')">Remove</button></div>' +
+          '<div class="li-sub">Qty: ' + it.qty + ' &times; ' + money(it.price) + ' = <b>' + money(it.qty * it.price) + '</b></div></div>';
+      }).join('') || '<div class="empty">No items added yet.</div>';
+      var total = OC.items.reduce(function (a, i) { return a + i.qty * i.price; }, 0);
+      $('content').innerHTML =
+        '<div class="page-title"><span class="link" onclick="go(\'orders\')">&larr; Orders</span> &nbsp;Create New Order</div>' +
+        '<div class="panel"><h3>Customer & Seller</h3>' +
+        '<label class="req">Assign to Seller</label><select id="oc-seller">' + sellerOpts + '</select>' +
+        '<label class="req">Customer Name</label><input id="oc-cname">' +
+        '<label class="req">Customer Phone</label><input id="oc-cphone" type="tel">' +
+        '<label>Delivery Address</label><textarea id="oc-caddr" rows="2"></textarea></div>' +
+        '<div class="panel"><h3>Products</h3>' +
+        '<div class="searchbar"><select id="oc-prod">' + prodOpts + '</select>' +
+        '<input id="oc-qty" type="number" min="1" value="1" style="max-width:90px">' +
+        '<button class="btn btn-dark btn-sm" onclick="ocAddItem()">Add Item</button></div>' + itemsHtml +
+        '<div class="kv mt"><b>Items Total</b><span>' + money(total) + '</span></div></div>' +
+        '<div class="panel"><h3>Charges & Instructions</h3><div class="grid2">' +
+        '<div><label>Delivery Charges</label><input id="oc-del" type="number" min="0" value="0"></div>' +
+        '<div><label>Discount</label><input id="oc-disc" type="number" min="0" value="0"></div></div>' +
+        '<label>Special Instructions (to seller)</label><textarea id="oc-rem" rows="2"></textarea>' +
+        '<label>Internal Notes (admin only)</label><textarea id="oc-notes" rows="2"></textarea></div>' +
+        '<div class="panel"><div class="kv"><b>Final Amount</b><span id="oc-final">' + money(total) + '</span></div>' +
+        '<div class="hint">Commission is calculated from the seller\'s current commission settings and stored as a snapshot with the order.</div></div>' +
+        '<button class="btn btn-lime" onclick="ocSubmit()">Create & Assign Order</button>';
+      $('oc-seller').onchange = function () { OC.sellerId = this.value; };
+    });
+  });
+};
+function ocAddItem() {
+  var pid = $('oc-prod').value, qty = Number($('oc-qty').value) || 1;
+  if (!pid) { toast('Select a product.', 'err'); return; }
+  var p = S.cache.activeProducts.filter(function (x) { return x.Product_ID === pid; })[0];
+  if (!p) return;
+  if (OC.sellerId && p.Seller_ID !== OC.sellerId) { toast('Product belongs to another seller. Pick a product of the selected seller.', 'err'); return; }
+  if (!OC.sellerId) { OC.sellerId = p.Seller_ID; }
+  var ex = OC.items.filter(function (i) { return i.productId === pid; })[0];
+  if (ex) ex.qty += qty;
+  else OC.items.push({ productId: pid, productName: p.Name, qty: qty, price: Number(p.Selling_Price) });
+  refresh();
+}
+function ocRemoveItem(i) { OC.items.splice(i, 1); refresh(); }
+function ocSubmit() {
+  var data = {
+    sellerId: $('oc-seller').value,
+    customerName: $('oc-cname').value.trim(),
+    customerPhone: $('oc-cphone').value.trim(),
+    customerAddress: $('oc-caddr').value.trim(),
+    deliveryCharge: $('oc-del').value,
+    discount: $('oc-disc').value,
+    remarks: $('oc-rem').value,
+    adminNotes: $('oc-notes').value,
+    items: OC.items
+  };
+  call('apiCreateOrder', S.token, data).then(function (r) {
+    toast(r.message, 'ok');
+    OC = { sellerId: '', items: [] };
+    go('orders', { orderId: r.orderId });
+  }).catch(function () {});
+}
+function orderDetailPage(orderId) {
+  return call('apiGetOrderDetail', S.token, orderId).then(function (d) {
+    var o = d.order;
+    var isSeller = S.role === 'seller';
+    var items = d.items.map(function (i) {
+      return '<tr><td>' + esc(i.Product_Name) + '</td><td>' + i.Qty + '</td><td>' + money(i.Price) + '</td><td>' + money(i.Subtotal) + '</td></tr>';
+    }).join('');
+    var kv = function (l, v) { return '<div class="kv"><b>' + esc(l) + '</b><span>' + esc(v || '-') + '</span></div>'; };
+    var actions = '';
+    if (!isSeller) {
+      actions = '<button class="btn btn-ghost btn-sm" onclick="orderEditForm(\'' + orderId + '\')">Edit Order</button>';
+      if (['Completed', 'Cancelled'].indexOf(o.Status) < 0) actions += '<button class="btn btn-danger btn-sm" onclick="cancelOrder(\'' + orderId + '\')">Cancel Order</button>';
+      if (o.Status === 'New') actions += '<button class="btn btn-lime btn-sm" onclick="assignOrder(\'' + orderId + '\',\'' + esc(o.Seller_ID) + '\')">Assign to Seller</button>';
+    } else {
+      var sellerNext = { 'Assigned': ['Accepted', 'Rejected'], 'Pending Acceptance': ['Accepted', 'Rejected'], 'Accepted': ['Processing'], 'Processing': ['Ready'], 'Ready': ['Completed'] }[o.Status] || [];
+      actions = sellerNext.map(function (st) {
+        return '<button class="btn ' + (st === 'Rejected' ? 'btn-danger' : 'btn-lime') + ' btn-sm" onclick="sellerStatusUpdate(\'' + orderId + '\',\'' + st + '\')">' + (st === 'Rejected' ? 'Reject Order' : 'Mark ' + st) + '</button>';
+      }).join(' ');
+      actions += '<button class="btn btn-ghost btn-sm" onclick="orderRemark(\'' + orderId + '\')">Add Remark</button>';
+    }
+    $('content').innerHTML =
+      '<div class="page-title"><span class="link" onclick="go(\'' + (isSeller ? 'orders' : 'orders') + '\')">&larr; Orders</span> &nbsp;' + esc(o.Order_No) + ' ' + statusChip(o.Status) + '</div>' +
+      '<div class="panel"><h3>Customer</h3>' + kv('Name', o.Customer_Name) + kv('Phone', o.Customer_Phone) + kv('Address', o.Customer_Address) + kv('Seller', isSeller ? (S.boot.shop ? S.boot.shop.Shop_Name : o.Seller_ID) : o.shopName || o.Seller_ID) + '</div>' +
+      '<div class="panel"><h3>Items</h3><div class="tbl-wrap"><table class="tbl"><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>' + items + '</table></div>' +
+      '<div class="kv mt"><b>Items Total</b><span>' + money(o.Total_Amount) + '</span></div>' +
+      kv('Delivery Charge', money(o.Delivery_Charge)) + kv('Discount', '- ' + money(o.Discount)) +
+      '<div class="kv"><b>Final Amount</b><span><b>' + money(o.Final_Amount) + '</b></span></div>' +
+      kv('Commission (' + o.Commission_Percent + '%)', money(o.Commission_Amount)) + kv('Seller Earning', money(o.Seller_Earning)) + '</div>' +
+      '<div class="panel"><h3>Status & Notes</h3>' + kv('Current Status', o.Status) + kv('Payment Status', o.Payment_Status) + kv('Seller Remarks', o.Remarks) + kv('Admin Notes', isSeller ? '(internal)' : o.Admin_Notes) + kv('Created', o.Created_At) + kv('Last Update', o.Updated_At) + '</div>' +
+      '<div class="li-actions">' + actions + '</div>';
+  });
+}
+function assignOrder(orderId, sellerId) {
+  openModal('<h3>Assign Order</h3><p style="font-size:13.5px">This order will be assigned to <b>' + esc(sellerId) + '</b>. The seller gets a notification and must accept it.</p>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Back</button><button class="btn btn-lime" id="as-go">Assign</button></div>');
+  $('as-go').onclick = function () { closeModal(); call('apiUpdateOrderStatus', S.token, orderId, 'Pending Acceptance', '').then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {}); };
+}
+function orderEditForm(orderId) {
+  call('apiGetOrderDetail', S.token, orderId).then(function (d) {
+    var o = d.order;
+    openModal('<h3>Edit Order ' + esc(o.Order_No) + '</h3>' + buildFields([
+      { k:'customerName', label:'Customer Name', req:1 }, { k:'customerPhone', label:'Phone', req:1 },
+      { k:'customerAddress', label:'Delivery Address', type:'textarea' },
+      { k:'deliveryCharge', label:'Delivery Charges', type:'number' }, { k:'discount', label:'Discount', type:'number' },
+      { k:'finalAmount', label:'Final Amount', type:'number' },
+      { k:'remarks', label:'Special Instructions', type:'textarea' }, { k:'adminNotes', label:'Internal Notes', type:'textarea' }
+    ], { customerName: o.Customer_Name, customerPhone: o.Customer_Phone, customerAddress: o.Customer_Address, deliveryCharge: o.Delivery_Charge, discount: o.Discount, finalAmount: o.Final_Amount, remarks: o.Remarks, adminNotes: o.Admin_Notes }) +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="oe-save">Save</button></div>');
+    $('oe-save').onclick = function () {
+      var data;
+      try { data = collectFields(ORDER_EDIT_FIELDS); } catch (e) { toast(e.message, 'err'); return; }
+      data.orderId = orderId;
+      call('apiUpdateOrder', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+  }).catch(function () {});
+}
+var ORDER_EDIT_FIELDS = [
+  { k:'customerName', label:'Customer Name', req:1 }, { k:'customerPhone', label:'Phone', req:1 },
+  { k:'customerAddress', label:'Delivery Address', type:'textarea' },
+  { k:'deliveryCharge', label:'Delivery Charges', type:'number' }, { k:'discount', label:'Discount', type:'number' },
+  { k:'finalAmount', label:'Final Amount', type:'number' },
+  { k:'remarks', label:'Special Instructions', type:'textarea' }, { k:'adminNotes', label:'Internal Notes', type:'textarea' }
+];
+function orderRemark(orderId) {
+  openModal('<h3>Add Order Remark</h3><textarea id="orm-r" rows="3" placeholder="Your remark"></textarea>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="orm-go">Save</button></div>');
+  $('orm-go').onclick = function () { var r = $('orm-r').value; closeModal(); call('apiUpdateOrderStatus', S.token, orderId, null, r).catch(function () {}); };
+}
+
+/* ---------- admin: products ---------- */
+PAGES.products = function () {
+  var q = S.cache['prd_q'] || '';
+  var sellerId = S.cache['prd_seller'] || 'all';
+  var status = S.cache['prd_status'] || 'all';
+  return call('apiGetProducts', S.token, q, sellerId, status, '').then(function (list) {
+    var pg = paginate('products', list);
+    var sellers = ['<option value="all">All Sellers</option>'].concat((S.cache.sellers || []).map(function (se) {
+      return '<option value="' + esc(se.sellerId) + '"' + (sellerId === se.sellerId ? ' selected' : '') + '>' + esc(se.name) + ' (' + esc(se.sellerId) + ')</option>';
+    })).join('');
+    $('content').innerHTML =
+      '<div class="page-title">Product Management <button class="btn btn-lime btn-sm" onclick="productForm()">+ Add Product</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportProducts()">Export CSV</button></div>' +
+      '<div class="searchbar"><input id="prd-q" placeholder="Search product, SKU, category..." value="' + esc(q) + '" onkeydown="if(event.key===\'Enter\'){S.cache[\'prd_q\']=this.value;S.cache[\'pg_products\']=1;refresh();}">' +
+      '<select onchange="S.cache[\'prd_seller\']=this.value;S.cache[\'pg_products\']=1;refresh();">' + sellers + '</select>' +
+      '<select onchange="S.cache[\'prd_status\']=this.value;S.cache[\'pg_products\']=1;refresh();">' +
+      ['all', 'Active', 'Pending', 'Rejected', 'Inactive'].map(function (o) { return '<option value="' + o + '"' + (status === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Statuses' : o) + '</option>'; }).join('') + '</select></div>' +
+      (pg.slice.length ? pg.slice.map(function (p) {
+        return '<div class="list-item"><div class="li-top"><div class="flex"><div>' +
+          (p.Image_URL ? '<img class="thumb" src="' + esc(p.Image_URL) + '" onerror="this.style.display=\'none\'">' : '') + '</div>' +
+          '<div><div class="li-title">' + esc(p.Name) + ' ' + statusChip(p.Status) + '</div>' +
+          '<div class="li-sub">' + esc(p.shopName || p.Seller_ID) + ' &bull; ' + esc(p.Category || '-') + ' &bull; ' + money(p.Selling_Price) + ' (MRP ' + money(p.MRP) + ')<br>Stock: ' + esc(p.Stock) + ' ' + esc(p.Unit || '') + ' &bull; ' + statusChip(p.stockLabel) + ' &bull; SKU: ' + esc(p.SKU || '-') + '</div></div></div></div>' +
+          '<div class="li-actions">' +
+          '<button class="btn btn-ghost btn-sm" onclick="productForm(\'' + p.Product_ID + '\')">Edit</button>' +
+          (p.Status === 'Pending' ? '<button class="btn btn-lime btn-sm" onclick="productStatus(\'' + p.Product_ID + '\',\'Active\')">Approve</button><button class="btn btn-danger btn-sm" onclick="productStatus(\'' + p.Product_ID + '\',\'Rejected\')">Reject</button>' : '') +
+          (p.Status === 'Active' ? '<button class="btn btn-ghost btn-sm" onclick="productStatus(\'' + p.Product_ID + '\',\'Inactive\')">Deactivate</button>' : '<button class="btn btn-lime btn-sm" onclick="productStatus(\'' + p.Product_ID + '\',\'Active\')">Activate</button>') +
+          '<button class="btn btn-danger btn-sm" onclick="deleteProduct(\'' + p.Product_ID + '\')">Delete</button>' +
+          '</div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#128096;</div>No products found.</div>');
+  });
+};
+function productStatus(pid, st) {
+  call('apiSetProductStatus', S.token, pid, st).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+}
+function deleteProduct(pid) {
+  confirmDialog('Delete product ' + pid + '? This cannot be undone.', function () {
+    call('apiDeleteProduct', S.token, pid).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+  }, true);
+}
+function exportProducts() {
+  call('apiExportData', S.token, 'products', 'all').then(function (rows) { exportCSV(rows, 'blynzo_products'); }).catch(function () {});
+}
+function productForm(pid) {
+  var after = function (cats) {
+    if (pid) {
+      call('apiGetProducts', S.token, pid, 'all', 'all', '').then(function (list) {
+        var p = list.filter(function (x) { return x.Product_ID === pid; })[0];
+        if (!p) { toast('Product not found.', 'err'); return; }
+        openProductModal(p, cats);
+      }).catch(function () {});
+    } else {
+      openProductModal(null, cats);
+    }
+  };
+  call('apiGetCategories', S.token).then(function (cats) {
+    S.cache.categories = cats;
+    after(cats);
+  }).catch(function () { after([]); });
+}
+function openProductModal(p, cats) {
+  var catNames = cats.filter(function (c) { return c.Active !== 'no' && !c.Parent; }).map(function (c) { return c.Name; });
+  catNames.unshift('');
+  var fdefs = [
+    { k:'name', label:'Product Name', req:1 },
+    { k:'image', label:'Product Image', type:'file', hint:p && p.Image_URL ? 'Leave empty to keep existing image' : 'Optional' },
+    { k:'description', label:'Description', type:'textarea' },
+    { k:'category', label:'Category', type:'select', opts:catNames },
+    { k:'subcategory', label:'Subcategory' },
+    { k:'mrp', label:'MRP', type:'number', req:1 },
+    { k:'sellingPrice', label:'Selling Price', type:'number', req:1 },
+    { k:'purchasePrice', label:'Purchase Price (Optional)', type:'number' },
+    { k:'stock', label:'Available Stock', type:'number' },
+    { k:'sku', label:'SKU / Product Code' },
+    { k:'unit', label:'Product Unit', type:'select', opts:['','Piece','Kg','Gram','Litre','ml','Packet','Box','Dozen','Meter'] },
+    { k:'variants', label:'Product Variants', ph:'e.g. Red, Blue / Small, Large' },
+    { k:'status', label:'Product Status', type:'select', opts:['Active','Inactive','Pending'] }
+  ];
+  var vals = p ? {
+    name: p.Name, description: p.Description, category: p.Category, subcategory: p.Subcategory,
+    mrp: p.MRP, sellingPrice: p.Selling_Price, purchasePrice: p.Purchase_Price, stock: p.Stock,
+    sku: p.SKU, unit: p.Unit, variants: p.Variants, status: p.Status
+  } : { status: 'Active' };
+  var sellerField = (!p && S.role === 'admin') ? '<label class="req">Belongs to Seller</label><select id="f_sellerId"><option value="">Select Seller</option>' +
+    (S.cache.sellers || []).map(function (se) { return '<option value="' + esc(se.sellerId) + '">' + esc(se.name) + ' (' + esc(se.sellerId) + ')</option>'; }).join('') + '</select>' : '';
+  openModal('<h3>' + (p ? 'Edit Product' : 'Add Product') + '</h3>' + sellerField + buildFields(fdefs, vals) +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="pf-save">Save Product</button></div>');
+  $('pf-save').onclick = function () {
+    var data;
+    try { data = collectFields(fdefs); } catch (e) { toast(e.message, 'err'); return; }
+    var go1 = function (img) {
+      if (img) data.image = img;
+      if (p) data.productId = pid;
+      else if (S.role === 'admin') data.sellerId = $('f_sellerId').value;
+      call('apiSaveProduct', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+    if (data.image) fileToB64(data.image).then(go1).catch(function (e) { toast(e.message, 'err'); });
+    else go1(null);
+  };
+}
+
+/* ---------- admin: commissions ---------- */
+function commissionForm(sellerId) {
+  var sellers = (S.cache.sellers && S.cache.sellers.length) ? S.cache.sellers : [];
+  var sel = sellerId ? sellerId : (sellers.length ? '<option value="">Select Seller</option>' + sellers.map(function (se) { return '<option value="' + esc(se.sellerId) + '">' + esc(se.name) + ' (' + esc(se.sellerId) + ')</option>'; }).join('') : '');
+  var body = sellerId ? '' : '<label class="req">Seller</label><select id="cf-seller">' + sel + '</select>';
+  openModal('<h3>Set Commission</h3>' + body +
+    '<label class="req">Scope</label><select id="cf-scope" onchange="document.getElementById(\'cf-target-wrap\').style.display=this.value===\'seller\'?\'none\':\'block\'">' +
+    '<option value="seller">Seller-wide</option><option value="category">Category-specific</option><option value="product">Product-specific</option></select>' +
+    '<div id="cf-target-wrap" style="display:none"><label class="req">Target (category name or product ID)</label><input id="cf-target"></div>' +
+    '<label class="req">Commission %</label><input id="cf-percent" type="number" min="0" max="100">' +
+    '<label>Effective Date</label><input id="cf-date" type="date" value="' + new Date().toISOString().slice(0, 10) + '">' +
+    '<div class="hint">Order of priority: Product &gt; Category &gt; Seller-wide &gt; Default. A snapshot is stored on each order at creation.</div>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="cf-go">Save</button></div>');
+  $('cf-go').onclick = function () {
+    var data = {
+      sellerId: sellerId || ($('cf-seller') ? $('cf-seller').value : ''),
+      scope: $('cf-scope').value,
+      target: $('cf-target') ? $('cf-target').value : '',
+      percent: $('cf-percent').value,
+      effectiveDate: $('cf-date').value
+    };
+    if (!data.sellerId) { toast('Select a seller.', 'err'); return; }
+    if (data.percent === '') { toast('Enter commission percent.', 'err'); return; }
+    call('apiSetCommission', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+  };
+}
+PAGES.commissions = function () {
+  var sellerId = S.cache['com_seller'] || 'all';
+  return call('apiGetCommissions', S.token, sellerId).then(function (d) {
+    S.cache.sellers = d.sellers;
+    var rows = d.history.map(function (c) {
+      return '<tr><td>' + esc(c.Created_At) + '</td><td>' + esc(c.Seller_ID) + '</td><td>' + esc(c.Scope) + (c.Target ? ' (' + esc(c.Target) + ')' : '') + '</td><td>' + esc(c.Percent) + '%</td><td>' + esc(c.Effective_Date) + '</td><td>' + (String(c.Active) === 'yes' ? '<span class="chip green">Active</span>' : '<span class="chip gray">Old</span>') + '</td></tr>';
+    }).join('');
+    var sellerRows = d.sellers.map(function (se) {
+      return '<tr><td>' + esc(se.id) + '</td><td>' + esc(se.name) + '</td><td>' + esc(se.commission) + '%</td><td>' + statusChip(se.status) + '</td>' +
+        '<td><button class="btn btn-ghost btn-sm" onclick="commissionForm(\'' + se.id + '\')">Change</button></td></tr>';
+    }).join('');
+    $('content').innerHTML =
+      '<div class="page-title">Commission Management <button class="btn btn-lime btn-sm" onclick="commissionForm()">+ Set Commission</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportCommissions()">Export CSV</button></div>' +
+      '<div class="banner lime">Every seller can have a different commission. Priority: Product &gt; Category &gt; Seller-wide &gt; Default. Each order stores a commission snapshot so future changes never alter old orders.</div>' +
+      '<div class="tbl-wrap"><table class="tbl"><tr><th>Seller ID</th><th>Name</th><th>Current %</th><th>Status</th><th></th></tr>' + sellerRows + '</table></div>' +
+      '<div class="sec-h">Commission History (all rules, newest first)</div><div class="tbl-wrap"><table class="tbl"><tr><th>Created</th><th>Seller</th><th>Scope</th><th>%</th><th>Effective</th><th>State</th></tr>' + rows + '</table></div>';
+  });
+};
+function exportCommissions() {
+  call('apiExportData', S.token, 'commissions', 'all').then(function (rows) { exportCSV(rows, 'blynzo_commissions'); }).catch(function () {});
+}
+
+/* ---------- payments ---------- */
+function paymentForm(sellerId) {
+  var sellers = S.cache.sellers || [];
+  var sel = sellerId ? '' : '<label class="req">Seller</label><select id="pf-seller"><option value="">Select Seller</option>' + sellers.map(function (se) { return '<option value="' + esc(se.sellerId) + '">' + esc(se.name) + ' (' + esc(se.sellerId) + ')</option>'; }).join('') + '</select>';
+  openModal('<h3>Pay Seller</h3>' + sel + buildFields([
+    { k:'amount', label:'Payment Amount', type:'number', req:1 },
+    { k:'method', label:'Payment Method', type:'select', opts:['UPI','Bank Transfer','Cash','Cheque','Other'] },
+    { k:'txnId', label:'Transaction ID' },
+    { k:'paymentDate', label:'Payment Date', type:'date', def:new Date().toISOString().slice(0, 10) },
+    { k:'remarks', label:'Remarks', type:'textarea' },
+    { k:'proof', label:'Payment Proof', type:'file', hint:'Optional screenshot/receipt' }
+  ]) +
+  '<div class="hint">Payment is saved as Pending. Use "Mark Paid" only after you actually transfer the money.</div>' +
+  '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="pf-go">Create Payment</button></div>');
+  $('pf-go').onclick = function () {
+    var data = {
+      sellerId: sellerId || $('pf-seller').value,
+      amount: $('f_amount').value, method: $('f_method').value, txnId: $('f_txnId').value,
+      paymentDate: $('f_paymentDate').value, remarks: $('f_remarks').value
+    };
+    if (!data.sellerId) { toast('Select a seller.', 'err'); return; }
+    var go1 = function (proof) {
+      if (proof) data.proof = proof;
+      call('apiCreatePayment', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+    var f = $('f_proof').files[0];
+    if (f) fileToB64(f).then(go1).catch(function (e) { toast(e.message, 'err'); });
+    else go1(null);
+  };
+}
+PAGES.payments = function () {
+  if (S.role === 'seller') return sellerPayments();
+  var sellerId = S.cache['pay_seller'] || 'all';
+  var status = S.cache['pay_status'] || 'all';
+  var df = dFilterArgs('pay_d');
+  return call('apiGetSellers', S.token, '', 'all', 'all', '', '').then(function (sl) {
+    S.cache.sellers = sl.map(function (x) { return x.seller; });
+    return call('apiGetPayments', S.token, sellerId, status, df[0], df[1], df[2]).then(function (list) {
+      var pg = paginate('payments', list);
+      $('content').innerHTML =
+        '<div class="page-title">Payment Management <button class="btn btn-lime btn-sm" onclick="paymentForm()">+ Pay Seller</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="exportPayments()">Export CSV</button></div>' +
+        '<div class="searchbar"><select onchange="S.cache[\'pay_seller\']=this.value;S.cache[\'pg_payments\']=1;refresh();">' +
+        '<option value="all">All Sellers</option>' + S.cache.sellers.map(function (se) { return '<option value="' + esc(se.sellerId) + '"' + (sellerId === se.sellerId ? ' selected' : '') + '>' + esc(se.name) + ' (' + esc(se.sellerId) + ')</option>'; }).join('') + '</select>' +
+        '<select onchange="S.cache[\'pay_status\']=this.value;S.cache[\'pg_payments\']=1;refresh();">' +
+        ['all', 'Pending', 'Paid'].map(function (o) { return '<option value="' + o + '"' + (status === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Statuses' : o) + '</option>'; }).join('') + '</select></div>' +
+        dateFilterBar('pay_d') +
+        (pg.slice.length ? pg.slice.map(function (p) {
+          return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + money(p.Amount) + ' - ' + esc(p.Method) + ' ' + statusChip(p.Status) + '</div>' +
+            '<div class="li-sub">' + esc(p.Payment_ID) + ' &bull; ' + esc(p.Seller_ID) + ' &bull; ' + esc(String(p.Payment_Date || '').slice(0, 10)) +
+            (p.Txn_ID ? ' &bull; Txn: ' + esc(p.Txn_ID) : '') + (p.Remarks ? '<br>Remarks: ' + esc(p.Remarks) : '') + '</div></div></div>' +
+            '<div class="li-actions">' +
+            (p.Status !== 'Paid' ? '<button class="btn btn-lime btn-sm" onclick="markPaid(\'' + p.Payment_ID + '\')">Mark Paid</button><button class="btn btn-danger btn-sm" onclick="deletePayment(\'' + p.Payment_ID + '\')">Delete</button>' : '<span class="hint">Paid at ' + esc(p.Paid_At) + '</span>') +
+            (p.Proof_URL ? '<a class="btn btn-ghost btn-sm" href="' + esc(p.Proof_URL) + '" target="_blank">Proof</a>' : '') +
+            '<button class="btn btn-ghost btn-sm" onclick="paymentReceipt(\'' + p.Payment_ID + '\')">Receipt</button>' +
+            '</div></div>';
+        }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#128181;</div>No payments found.</div>');
+    });
+  });
+};
+function markPaid(pid) {
+  confirmDialog('Confirm: payment ' + pid + ' has actually been transferred to the seller? The seller will be notified.', function () {
+    call('apiMarkPaymentPaid', S.token, pid, true).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+  });
+}
+function deletePayment(pid) {
+  confirmDialog('Delete pending payment ' + pid + '?', function () {
+    call('apiDeletePayment', S.token, pid).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+  }, true);
+}
+function paymentReceipt(pid) {
+  call('apiGetPayments', S.token, 'all', 'all', 'all', '', '').then(function (list) {
+    var p = list.filter(function (x) { return x.Payment_ID === pid; })[0];
+    if (!p) { toast('Payment not found.', 'err'); return; }
+    var t = '<table>' +
+      '<tr><th>Payment ID</th><td>' + esc(p.Payment_ID) + '</td></tr><tr><th>Seller</th><td>' + esc(p.Seller_ID) + '</td></tr>' +
+      '<tr><th>Amount</th><td>' + money(p.Amount) + '</td></tr><tr><th>Method</th><td>' + esc(p.Method) + '</td></tr>' +
+      '<tr><th>Transaction ID</th><td>' + esc(p.Txn_ID) + '</td></tr><tr><th>Date</th><td>' + esc(p.Payment_Date) + '</td></tr>' +
+      '<tr><th>Status</th><td>' + esc(p.Status) + '</td></tr><tr><th>Remarks</th><td>' + esc(p.Remarks) + '</td></tr></table>';
+    printReport('BLYNZO Payment Receipt - ' + pid, t);
+  }).catch(function () {});
+}
+function exportPayments() {
+  call('apiExportData', S.token, 'payments', 'all').then(function (rows) { exportCSV(rows, 'blynzo_payments'); }).catch(function () {});
+}
+PAGES.transactions = function () {
+  if (S.role === 'seller') return sellerTransactions();
+  var sellerId = S.cache['txn_seller'] || 'all';
+  var type = S.cache['txn_type'] || 'all';
+  var df = dFilterArgs('txn_d');
+  return call('apiGetTransactions', S.token, sellerId, type, df[0], df[1], df[2]).then(function (list) {
+    var pg = paginate('transactions', list);
+    $('content').innerHTML =
+      '<div class="page-title">Transactions <button class="btn btn-ghost btn-sm" onclick="exportTxns()">Export CSV</button></div>' +
+      '<div class="searchbar"><select onchange="S.cache[\'txn_type\']=this.value;S.cache[\'pg_transactions\']=1;refresh();">' +
+      ['all', 'Order Sale', 'Commission', 'Earning', 'Payment'].map(function (o) { return '<option value="' + o + '"' + (type === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Types' : o) + '</option>'; }).join('') + '</select></div>' +
+      dateFilterBar('txn_d') +
+      (pg.slice.length ? '<div class="tbl-wrap"><table class="tbl"><tr><th>Txn ID</th><th>Date</th><th>Seller</th><th>Order</th><th>Type</th><th>Amount</th><th>Status</th><th>Description</th></tr>' +
+        pg.slice.map(function (t) {
+          return '<tr><td>' + esc(t.Txn_ID) + '</td><td>' + esc(t.Date) + '</td><td>' + esc(t.Seller_ID) + '</td><td>' + esc(t.Order_ID || '-') + '</td><td>' + esc(t.Type) + '</td><td>' + money(t.Amount) + '</td><td>' + statusChip(t.Status) + '</td><td>' + esc(t.Description) + '</td></tr>';
+        }).join('') + '</table></div>' + pg.pager : '<div class="empty"><div class="e-ic">&#129534;</div>No transactions found.</div>');
+  });
+};
+function exportTxns() {
+  call('apiExportData', S.token, 'transactions', 'all').then(function (rows) { exportCSV(rows, 'blynzo_transactions'); }).catch(function () {});
+}
+
+/* ---------- meetings ---------- */
+PAGES.meetings = function () {
+  var status = S.cache['mt_status'] || 'all';
+  return call('apiGetMeetings', S.token, status).then(function (list) {
+    var now = String(new Date().toISOString().slice(0, 10));
+    var upcoming = list.filter(function (m) { return m.Status === 'Scheduled' || m.Status === 'Ongoing'; });
+    var past = list.filter(function (m) { return m.Status === 'Ended' || m.Status === 'Cancelled'; });
+    var item = function (m) {
+      return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(m.Title) + ' ' + statusChip(m.Status) + '</div>' +
+        '<div class="li-sub">' + esc(m.shopName || m.Seller_ID) + ' &bull; ' + esc(m.Date) + ' at ' + esc(m.Time) +
+        (m.Meet_Link ? ' &bull; <a class="link" href="' + esc(m.Meet_Link) + '" target="_blank">Google Meet link</a>' : '') +
+        (m.Description ? '<br>' + esc(m.Description) : '') + '</div></div></div>' +
+        '<div class="li-actions">' +
+        '<button class="btn btn-lime btn-sm" onclick="openMeetingRoom(\'' + m.Meeting_ID + '\')">Open Meeting Room</button>' +
+        (S.role === 'admin' ? '<button class="btn btn-ghost btn-sm" onclick="meetingForm(\'' + m.Meeting_ID + '\')">Reschedule</button>' +
+          (m.Status !== 'Ongoing' ? '<button class="btn btn-ghost btn-sm" onclick="meetingStatus(\'' + m.Meeting_ID + '\',\'Ongoing\')">Start</button>' : '') +
+          (m.Status !== 'Ended' ? '<button class="btn btn-dark btn-sm" onclick="meetingStatus(\'' + m.Meeting_ID + '\',\'Ended\')">End</button>' : '') +
+          '<button class="btn btn-danger btn-sm" onclick="meetingStatus(\'' + m.Meeting_ID + '\',\'Cancelled\')">Cancel</button>' :
+          (m.Status === 'Ongoing' ? '<button class="btn btn-dark btn-sm" onclick="meetingStatus(\'' + m.Meeting_ID + '\',\'Ended\')">End Meeting</button>' : '')) +
+        '</div></div>';
+    };
+    $('content').innerHTML =
+      '<div class="page-title">Online Meetings ' + (S.role === 'admin' ? '<button class="btn btn-lime btn-sm" onclick="meetingForm()">+ Schedule Meeting</button>' : '') + '</div>' +
+      '<div class="filters">' + ['all', 'Scheduled', 'Ongoing', 'Ended', 'Cancelled'].map(function (o) {
+        return '<button class="' + (status === o ? 'on' : '') + '" onclick="S.cache[\'mt_status\']=\'' + o + '\';refresh();">' + (o === 'all' ? 'All' : o) + '</button>';
+      }).join('') + '</div>' +
+      '<div class="sec-h">Upcoming / Ongoing</div>' + (upcoming.length ? upcoming.map(item).join('') : '<div class="empty"><div class="e-ic">&#128197;</div>No upcoming meetings.</div>') +
+      '<div class="sec-h">History</div>' + (past.length ? past.map(item).join('') : '<div class="empty">No past meetings.</div>');
+  });
+};
+function meetingStatus(id, st) {
+  call('apiSetMeetingStatus', S.token, id, st).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+}
+function meetingForm(meetingId) {
+  var sellers = S.cache.sellers || [];
+  var preload = function (sel) {
+    var sv = sel && sel.Seller_ID;
+    openModal('<h3>' + (meetingId ? 'Reschedule Meeting' : 'Schedule Meeting') + '</h3>' +
+      '<label class="req">Seller</label><select id="mf-seller">' + sellers.map(function (se) {
+        return '<option value="' + esc(se.sellerId) + '"' + (sv === se.sellerId ? ' selected' : '') + '>' + esc(se.name) + ' (' + esc(se.sellerId) + ')</option>';
+      }).join('') + '</select>' +
+      buildFields([
+        { k:'title', label:'Meeting Title', req:1 },
+        { k:'description', label:'Agenda / Description', type:'textarea' },
+        { k:'date', label:'Date', type:'date', req:1 },
+        { k:'time', label:'Time', type:'time', req:1 },
+        { k:'meetLink', label:'Google Meet Link (optional)', ph:'https://meet.google.com/...' }
+      ], sel ? { title: sel.Title, description: sel.Description, date: sel.Date, time: sel.Time, meetLink: sel.Meet_Link } : {}) +
+      '<div class="hint">If you add a Google Meet link, sellers can join it from the meeting room. Otherwise use the built-in text meeting room.</div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="mf-go">Save</button></div>');
+    $('mf-go').onclick = function () {
+      var data = { sellerId: $('mf-seller').value, title: $('f_title').value, description: $('f_description').value, date: $('f_date').value, time: $('f_time').value, meetLink: $('f_meetLink').value };
+      if (meetingId) data.meetingId = meetingId;
+      call('apiSaveMeeting', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+  };
+  if (!sellers.length) {
+    call('apiGetSellers', S.token, '', 'all', 'all', '', '').then(function (l) { S.cache.sellers = l.map(function (x) { return x.seller; }); meetingForm(meetingId); }).catch(function () {});
+    return;
+  }
+  if (meetingId) {
+    call('apiGetMeetings', S.token, 'all').then(function (list) {
+      preload(list.filter(function (m) { return m.Meeting_ID === meetingId; })[0]);
+    }).catch(function () {});
+    return;
+  }
+  preload(null);
+}
+var MT = { id: null, lastId: '', timer: null };
+function openMeetingRoom(meetingId) {
+  MT.id = meetingId; MT.lastId = '';
+  $('content').innerHTML = '<div class="skel"></div>';
+  renderMeetingRoom();
+  stopTimers();
+  MT.timer = setInterval(renderMeetingRoom, 4000);
+}
+function renderMeetingRoom() {
+  if (!MT.id || S.page !== 'meetings') { clearInterval(MT.timer); MT.timer = null; startTimers(); return; }
+  api('apiGetMeetingMessages', S.token, MT.id, MT.lastId).then(function (d) {
+    var box = $('mt-chat');
+    var atEnd = false;
+    if (box) atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+    if (!$('mt-title')) {
+      call('apiGetMeetings', S.token, 'all').then(function (list) {
+        var m = list.filter(function (x) { return x.Meeting_ID === MT.id; })[0];
+        if (!m) return;
+        if ($('mt-title')) {
+          $('mt-title').innerHTML = '<span class="link" onclick="MT.id=null;clearInterval(MT.timer);MT.timer=null;startTimers();refresh();">&larr; Meetings</span> &nbsp;' + esc(m.Title) + ' ' + statusChip(d.status) +
+            (d.meetLink ? ' <a class="btn btn-lime btn-sm" href="' + esc(d.meetLink) + '" target="_blank">Join Google Meet</a>' : '');
+          $('mt-desc').textContent = m.Description || '';
+          $('mt-info').textContent = (m.shopName || m.Seller_ID) + ' \u2022 ' + m.Date + ' at ' + m.Time + (d.meetLink ? ' \u2022 Google Meet available' : ' \u2022 Text meeting room');
+        }
+      }).catch(function () {});
+      $('content').innerHTML =
+        '<div class="page-title" id="mt-title"></div>' +
+        '<div class="panel"><div class="hint" id="mt-desc" style="font-size:13px;color:var(--ink)"></div><div class="hint" id="mt-info"></div>' +
+        '<div class="chat" id="mt-chat"></div>' +
+        '<div class="chat-in"><input id="mt-msg" placeholder="Type your message..." onkeydown="if(event.key===\'Enter\')mtSend()"><button class="btn btn-lime btn-sm" onclick="mtSend()">Send</button></div></div>';
+    }
+    if (d.messages.length) {
+      MT.lastId = d.messages[d.messages.length - 1].ID;
+      var html = d.messages.map(function (m) {
+        var mine = (m.Sender_Role === S.role);
+        return '<div class="bub ' + (mine ? 'me' : 'them') + '"><div class="who">' + esc(m.Sender_Name) + '</div>' + esc(m.Message) + '<div class="when">' + esc(m.Sent_At) + '</div></div>';
+      }).join('');
+      var chat = $('mt-chat');
+      chat.insertAdjacentHTML('beforeend', html);
+      if (atEnd) chat.scrollTop = chat.scrollHeight;
+    }
+  }).catch(function () {});
+}
+function mtSend() {
+  var el = $('mt-msg');
+  if (!el || !el.value.trim()) return;
+  var msg = el.value.trim();
+  el.value = '';
+  call('apiSendMeetingMessage', S.token, MT.id, msg).then(function () { renderMeetingRoom(); }).catch(function () {});
+}
+
+/* ---------- notices (admin) ---------- */
+PAGES.notices = function () {
+  var box = S.cache['nt_box'] || 'all';
+  return call('apiGetNotifications', S.token, box).then(function (list) {
+    var pg = paginate('notices', list);
+    $('content').innerHTML =
+      '<div class="page-title">Notifications <button class="btn btn-lime btn-sm" onclick="noticeForm()">+ Create Notice</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="call(\'apiMarkAllNotificationsRead\',S.token).then(function(){toast(\'All marked read.\',\'ok\');refresh();}).catch(function(){});">Mark All Read</button></div>' +
+      '<div class="filters">' + [['all', 'All'], ['unread', 'Unread'], ['read', 'Read']].map(function (o) {
+        return '<button class="' + (box === o[0] ? 'on' : '') + '" onclick="S.cache[\'nt_box\']=\'' + o[0] + '\';S.cache[\'pg_notices\']=1;refresh();">' + o[1] + '</button>';
+      }).join('') + '</div>' +
+      (pg.slice.length ? pg.slice.map(function (n) {
+        var unread = String(n.Read_Flag) === 'no';
+        return '<div class="noti-item ' + (unread ? 'unread' : '') + '" onclick="openNotice(\'' + n.ID + '\')" style="cursor:pointer">' +
+          '<div class="ic">' + ({ notice: '&#128227;', order: '&#128230;', payment: '&#128181;', registration: '&#127962;', product: '&#128096;', message: '&#128172;', meeting: '&#128197;', support: '&#127909;', account: '&#128100;', commission: '&#128176;', security: '&#128272;', profile_change: '&#9997;', product_change: '&#128096;' }[n.Type] || '&#128276;') + '</div>' +
+          '<div class="grow"><div class="t">' + esc(n.Title) + ' ' + (unread ? '<span class="chip lime">NEW</span>' : '') + '</div>' +
+          '<div class="b">' + esc(n.Body) + '</div><div class="w">' + esc(n.Type) + ' \u2022 ' + esc(n.Created_At) + (unread ? '' : ' \u2022 read ' + esc(n.Read_At)) + '</div></div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#128276;</div>No notifications here.</div>');
+  });
+};
+function openNotice(id) {
+  call('apiGetNotifications', S.token, 'all').then(function (list) {
+    var n = list.filter(function (x) { return x.ID === id; })[0];
+    if (!n) return;
+    call('apiMarkNotificationRead', S.token, id).then(function () {
+      openModal('<h3>' + esc(n.Title) + '</h3><div class="hint mb">' + esc(n.Type) + ' \u2022 ' + esc(n.Created_At) + '</div>' +
+        '<p style="font-size:14.5px;line-height:1.6;white-space:pre-wrap">' + esc(n.Body) + '</p>' +
+        '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Close</button>' +
+        (S.role === 'admin' && n.Type === 'notice' ? '<button class="btn btn-danger" onclick="deleteNotice(\'' + esc(n.Ref || n.ID) + '\')">Delete Notice</button>' : '') + '</div>');
+      updateBell(Math.max(0, ((S.boot && S.boot.unread) || 1) - 1));
+      refresh();
+    }).catch(function () {});
+  }).catch(function () {});
+}
+function deleteNotice(ref) {
+  confirmDialog('Delete this notice for all sellers?', function () {
+    call('apiDeleteNotice', S.token, ref).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+  }, true);
+}
+function noticeForm(editRef, title, body) {
+  var loadSellers = function (sellers) {
+    openModal('<h3>' + (editRef ? 'Edit Notice' : 'Create Notice') + '</h3>' +
+      buildFields([{ k:'title', label:'Title', req:1 }, { k:'body', label:'Message', type:'textarea', req:1 }], { title: title || '', body: body || '' }) +
+      '<label class="req">Visibility / Audience</label><select id="nf-target" onchange="$(\'nf-sellers\').style.display=this.value===\'all\'?\'none\':\'block\'">' +
+      '<option value="all">All Sellers (public notice)</option><option value="selected">Selected Sellers only</option></select>' +
+      '<div id="nf-sellers" style="display:none;max-height:180px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:8px">' +
+      sellers.map(function (se) { return '<label class="chk" style="margin:6px 0"><input type="checkbox" value="' + esc(se.sellerId) + '"> ' + esc(se.name) + ' (' + esc(se.sellerId) + ')</label>'; }).join('') + '</div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="nf-go">Publish Notice</button></div>');
+    $('nf-go').onclick = function () {
+      var data = { title: $('f_title').value, body: $('f_body').value, target: $('nf-target').value, sellerIds: [] };
+      if (data.target === 'selected') {
+        data.sellerIds = Array.prototype.slice.call($('nf-sellers').querySelectorAll('input:checked')).map(function (c) { return c.value; });
+        if (!data.sellerIds.length) { toast('Select at least one seller.', 'err'); return; }
+      }
+      if (editRef) data.noticeId = editRef;
+      call('apiCreateNotice', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+  };
+  if (S.cache.sellers && S.cache.sellers.length) loadSellers(S.cache.sellers);
+  else call('apiGetSellers', S.token, '', 'all', 'all', '', '').then(function (l) { S.cache.sellers = l.map(function (x) { return x.seller; }); loadSellers(S.cache.sellers); }).catch(function () {});
+}
+
+/* ================= SELLER PAGES ================= */
+function sellerDashboard() {
+  return call('apiGetSellerDashboard', S.token).then(function (d) {
+    var stat = function (n, l, ic, lime) { return '<div class="card stat' + (lime ? ' lime' : '') + '"><span class="ic">' + ic + '</span><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
+    var recent = d.recentOrders.map(function (o) {
+      return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(o.Order_No) + ' ' + statusChip(o.Status) + '</div>' +
+        '<div class="li-sub">' + esc(o.Customer_Name) + ' &bull; ' + money(o.Final_Amount) + ' &bull; ' + esc(String(o.Created_At).slice(0, 16)) + '</div></div></div>' +
+        '<div class="li-actions"><button class="btn btn-dark btn-sm" onclick="go(\'orders\',{orderId:\'' + o.Order_ID + '\'})">Details</button></div></div>';
+    }).join('') || '<div class="empty"><div class="e-ic">&#128230;</div>No orders yet. Orders assigned by admin will appear here.</div>';
+    $('content').innerHTML =
+      '<div class="page-title">Seller Dashboard ' + statusChip(d.status || 'Active') + '</div>' +
+      (d.restricted ? '<div class="banner">Your account status is <b>' + esc(d.status || 'Pending') + '</b>. You can log in, but product, order and business features unlock after admin approval. Your Seller ID never changes.</div>' : '') +
+      '<div class="sec-h">My Products</div><div class="cards c3">' +
+      stat(d.products.total, 'Total Products', '&#128096;') + stat(d.products.active, 'Active Products', '&#9989;', 1) + stat(d.products.outOfStock, 'Out of Stock', '&#128230;') + '</div>' +
+      '<div class="sec-h">My Orders</div><div class="cards c3">' +
+      stat(d.orders.total, 'Total Orders', '&#128230;') + stat(d.orders.new, 'New / Assigned', '&#128229;', 1) +
+      stat(d.orders.pending, 'In Progress', '&#9203;') + stat(d.orders.accepted, 'Accepted', '&#128666;') +
+      stat(d.orders.completed, 'Completed', '&#9989;', 1) + stat(d.orders.cancelled, 'Cancelled / Rejected', '&#10060;') + '</div>' +
+      '<div class="sec-h">Earnings</div><div class="cards c3">' +
+      stat(money(d.finance.totalSales), 'Total Sales', '&#128176;', 1) +
+      stat(money(d.finance.commission), 'BLYNZO Commission', '&#127991;') +
+      stat(money(d.finance.netEarnings), 'Net Earnings', '&#128181;', 1) +
+      stat(money(d.finance.pending), 'Pending Payments', '&#9203;') +
+      stat(money(d.finance.paid), 'Paid Payments', '&#9989;') + '</div>' +
+      '<div class="sec-h">Recent Orders</div>' + recent;
+  });
+}
+
+PAGES.shop = function () {
+  return call('apiGetSellerProfile', S.token).then(function (d) {
+    var sh = d.shop || {};
+    var kv = function (l, v) { return '<div class="kv"><b>' + esc(l) + '</b><span>' + esc(v || '-') + '</span></div>'; };
+    $('content').innerHTML =
+      '<div class="page-title">My Shop</div>' +
+      (sh.Change_Request ? '<div class="banner">Change request pending with admin:<br>' + esc(sh.Change_Request).replace(/\n/g, '<br>') + '</div>' : '') +
+      '<div class="shop-head">' +
+      (sh.Logo_URL ? '<img src="' + esc(sh.Logo_URL) + '" onerror="this.remove()">' : '<div class="mini-logo" style="width:56px;height:56px;font-size:20px">B</div>') +
+      '<div><div class="n">' + esc(sh.Shop_Name || 'My Shop') + '</div><div class="s">' + esc(sh.Business_Type || '') + (sh.Category ? ' &bull; ' + esc(sh.Category) : '') + ((S.boot.seller && S.boot.seller.status) ? ' &bull; ' + esc(S.boot.seller.status) : '') + '</div></div></div>' +
+      '<div class="panel"><h3>Shop Information</h3>' +
+      kv('Shop Owner', sh.Owner_Name || (S.boot.seller && S.boot.seller.name)) + kv('Shop Mobile', sh.Shop_Mobile) +
+      kv('Shop Address', sh.Shop_Address) + kv('Opening Time', sh.Open_Time) + kv('Closing Time', sh.Close_Time) +
+      kv('Weekly Holiday', sh.Weekly_Holiday) + kv('Shop Description', sh.Description) +
+      kv('Shop Location', sh.Location) + kv('Available Services', sh.Services) + '</div>' +
+      '<div class="panel"><h3>Request Shop Change</h3>' +
+      '<div class="hint">Shop name, address, hours and bank details are verified by admin. Submit a change request and admin will update it after review.</div>' +
+      '<label>What should change?</label><textarea id="shop-chg" rows="3" placeholder="Example: Change opening time to 9:00 AM, update address to..."></textarea>' +
+      '<button class="btn btn-lime mt" id="shop-go">Send Change Request</button></div>';
+    $('shop-go').onclick = function () {
+      var v = $('shop-chg').value.trim();
+      if (!v) { toast('Describe the change you request.', 'err'); return; }
+      call('apiRequestProfileChange', S.token, { shop: v }).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+  });
+};
+
+PAGES.myproducts = function () {
+  var q = S.cache['mp_q'] || '';
+  var status = S.cache['mp_status'] || 'all';
+  return call('apiGetProducts', S.token, q, 'all', status, '').then(function (list) {
+    var pg = paginate('myproducts', list);
+    $('content').innerHTML =
+      '<div class="page-title">My Products <button class="btn btn-lime btn-sm" onclick="go(\'addproduct\')">+ Add Product</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportProducts()">Export CSV</button></div>' +
+      '<div class="searchbar"><input id="mp-q" placeholder="Search product, SKU, category..." value="' + esc(q) + '" onkeydown="if(event.key===\'Enter\'){S.cache[\'mp_q\']=this.value;S.cache[\'pg_myproducts\']=1;refresh();}">' +
+      '<select onchange="S.cache[\'mp_status\']=this.value;S.cache[\'pg_myproducts\']=1;refresh();">' +
+      ['all', 'Active', 'Pending', 'Rejected', 'Inactive'].map(function (o) { return '<option value="' + o + '"' + (status === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Statuses' : o) + '</option>'; }).join('') + '</select></div>' +
+      (pg.slice.length ? pg.slice.map(function (p) {
+        return '<div class="list-item"><div class="li-top"><div class="flex"><div>' +
+          (p.Image_URL ? '<img class="thumb" src="' + esc(p.Image_URL) + '" onerror="this.style.display=\'none\'">' : '') + '</div>' +
+          '<div><div class="li-title">' + esc(p.Name) + ' ' + statusChip(p.Status) + '</div>' +
+          '<div class="li-sub">' + esc(p.Category || '-') + ' &bull; ' + money(p.Selling_Price) + ' (MRP ' + money(p.MRP) + ')<br>Stock: ' + esc(p.Stock) + ' ' + esc(p.Unit || '') + ' &bull; ' + statusChip(p.stockLabel) + ' &bull; SKU: ' + esc(p.SKU || '-') + '</div></div></div></div>' +
+          '<div class="li-actions">' +
+          '<button class="btn btn-ghost btn-sm" onclick="productForm(\'' + p.Product_ID + '\')">Edit</button>' +
+          '<button class="btn btn-dark btn-sm" onclick="stockUpdate(\'' + p.Product_ID + '\',' + Number(p.Stock || 0) + ')">Stock</button>' +
+          (p.Status === 'Active' ? '<button class="btn btn-ghost btn-sm" onclick="productStatus(\'' + p.Product_ID + '\',\'Inactive\')">Deactivate</button>' : '<button class="btn btn-lime btn-sm" onclick="productStatus(\'' + p.Product_ID + '\',\'Active\')">Activate</button>') +
+          '<button class="btn btn-danger btn-sm" onclick="deleteProduct(\'' + p.Product_ID + '\')">Delete</button>' +
+          '</div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#128096;</div>No products yet. Add your first product.</div>');
+  });
+};
+
+PAGES.addproduct = function () {
+  var render = function (cats) {
+    var catNames = (cats || []).filter(function (c) { return c.Active !== 'no' && !c.Parent; }).map(function (c) { return c.Name; });
+    $('content').innerHTML =
+      '<div class="page-title"><span class="link" onclick="go(\'myproducts\')">&larr; My Products</span> &nbsp;Add Product</div>' +
+      (S.boot && S.boot.restricted ? '<div class="banner">Your account is not Active yet. Products can be submitted but business features unlock after admin approval.</div>' : '') +
+      buildFields([
+        { k:'name', label:'Product Name', req:1 },
+        { k:'image', label:'Product Image', type:'file', hint:'Optional' },
+        { k:'description', label:'Description', type:'textarea' },
+        { k:'category', label:'Category', type:'select', opts:catNames },
+        { k:'subcategory', label:'Subcategory' },
+        { k:'mrp', label:'MRP', type:'number', req:1 },
+        { k:'sellingPrice', label:'Selling Price', type:'number', req:1 },
+        { k:'purchasePrice', label:'Purchase Price (optional)', type:'number' },
+        { k:'stock', label:'Available Stock', type:'number', req:1 },
+        { k:'sku', label:'SKU / Product Code' },
+        { k:'unit', label:'Unit', ph:'pcs, kg, box...' },
+        { k:'variants', label:'Variants', ph:'Example: Red-XL, Blue-L' }
+      ]) +
+      '<div class="hint">Admin approval setting decides whether your product goes live instantly or needs approval.</div>' +
+      '<button class="btn btn-lime" id="ap-go">Submit Product</button>';
+    $('ap-go').onclick = function () {
+      var data;
+      try { data = collectFields(PRODUCT_FIELDS); } catch (e) { toast(e.message, 'err'); return; }
+      var fin = function (img) { if (img) data.image = img; doSaveProduct(data); };
+      var f = $('f_image').files[0];
+      if (f) fileToB64(f).then(fin).catch(function (e) { toast(e.message, 'err'); }); else fin(null);
+    };
+  };
+  call('apiGetCategories', S.token).then(function (cats) { S.cache.categories = cats; render(cats); }).catch(function () { render([]); });
+};
+var PRODUCT_FIELDS = [
+  { k:'name', label:'Product Name', req:1 }, { k:'description', label:'Description', type:'textarea' },
+  { k:'category', label:'Category', type:'select', opts:[] }, { k:'subcategory', label:'Subcategory' },
+  { k:'mrp', label:'MRP', type:'number', req:1 }, { k:'sellingPrice', label:'Selling Price', type:'number', req:1 },
+  { k:'purchasePrice', label:'Purchase Price (optional)', type:'number' }, { k:'stock', label:'Available Stock', type:'number', req:1 },
+  { k:'sku', label:'SKU / Product Code' }, { k:'unit', label:'Unit' }, { k:'variants', label:'Variants' }
+];
+function doSaveProduct(data) {
+  call('apiSaveProduct', S.token, data).then(function (r) { toast(r.message, 'ok'); S.cache.pg_myproducts = 1; go('myproducts'); }).catch(function () {});
+}
+function stockUpdate(pid, current) {
+  openModal('<h3>Update Stock</h3><label class="req">New Stock Quantity</label><input id="stk-n" type="number" value="' + current + '">' +
+    '<label>Reason</label><input id="stk-r" placeholder="Example: new purchase, damage, correction">' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="stk-go">Update</button></div>');
+  $('stk-go').onclick = function () {
+    var n = $('stk-n').value, r = $('stk-r').value;
+    if (n === '' || Number(n) < 0) { toast('Enter a valid stock quantity.', 'err'); return; }
+    closeModal();
+    call('apiUpdateStock', S.token, pid, n, r).then(function (x) { toast(x.message, 'ok'); refresh(); }).catch(function () {});
+  };
+}
+
+PAGES.categories = function () {
+  if (S.role === 'admin') return adminCategories();
+  return call('apiGetCategories', S.token).then(function (cats) {
+    var active = cats.filter(function (c) { return c.Active !== 'no'; });
+    var parents = active.filter(function (c) { return !c.Parent; });
+    var subs = active.filter(function (c) { return c.Parent; });
+    $('content').innerHTML =
+      '<div class="page-title">Categories</div>' +
+      '<div class="banner lime">Categories are managed by admin. Select a category when adding products.</div>' +
+      (parents.length ? parents.map(function (c) {
+        var children = subs.filter(function (s) { return s.Parent === c.Name; }).map(function (s) { return '<span class="chip black">' + esc(s.Name) + '</span>'; }).join(' ');
+        return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(c.Name) + '</div>' +
+          '<div class="li-sub">' + (children || 'No subcategories') + '</div></div></div></div>';
+      }).join('') : '<div class="empty"><div class="e-ic">&#127991;</div>No categories yet. Admin will add them soon.</div>');
+  });
+};
+function adminCategories() {
+  return call('apiGetCategories', S.token).then(function (cats) {
+    var pg = paginate('categories', cats);
+    var parents = cats.filter(function (c) { return !c.Parent; }).map(function (c) { return c.Name; });
+    var rows = pg.slice.map(function (c) {
+      return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(c.Name) + (c.Parent ? ' <span class="chip black">sub of ' + esc(c.Parent) + '</span>' : '') + '</div>' +
+        '<div class="li-sub">' + (c.Active === 'no' ? 'Inactive' : 'Active') + ' &bull; ' + esc(String(c.Created_At || '').slice(0, 10)) + '</div></div>' +
+        '<div>' + (c.Active === 'no' ? '<span class="chip gray">Off</span>' : '<span class="chip green">On</span>') + '</div></div>' +
+        '<div class="li-actions"><button class="btn btn-ghost btn-sm" onclick="categoryForm(\'' + c.ID + '\')">Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteCategory(\'' + c.ID + '\')">Delete</button></div></div>';
+    }).join('');
+    $('content').innerHTML =
+      '<div class="page-title">Category Management <button class="btn btn-lime btn-sm" onclick="categoryForm()">+ Add Category</button></div>' +
+      '<div class="banner lime">Sellers see active categories when adding products. Subcategories appear nested.</div>' +
+      (pg.slice.length ? rows + pg.pager : '<div class="empty"><div class="e-ic">&#127991;</div>No categories yet.</div>');
+    S.cache.catParents = parents;
+  });
+}
+function categoryForm(id) {
+  call('apiGetCategories', S.token).then(function (cats) {
+    var me = id ? cats.filter(function (c) { return c.ID === id; })[0] : null;
+    var parents = cats.filter(function (c) { return !c.Parent && (!id || c.ID !== id); }).map(function (c) { return c.Name; });
+    openModal('<h3>' + (id ? 'Edit Category' : 'Add Category') + '</h3>' + buildFields([
+      { k:'name', label:'Category Name', req:1 },
+      { k:'parent', label:'Parent Category (leave blank for main category)', type:'select', opts:[''].concat(parents) }
+    ], me ? { name: me.Name, parent: me.Parent } : {}) +
+      '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="cat-go">Save</button></div>');
+    $('cat-go').onclick = function () {
+      var data;
+      try { data = collectFields([{ k:'name', label:'Category Name', req:1 }, { k:'parent', label:'Parent', type:'select', opts:[] }]); } catch (e) { toast(e.message, 'err'); return; }
+      if (id) data.id = id;
+      call('apiSaveCategory', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+  }).catch(function () {});
+}
+function deleteCategory(id) {
+  confirmDialog('Delete category ' + id + '? Products using it keep the name but it will no longer be selectable.', function () {
+    call('apiDeleteCategory', S.token, id).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+  }, true);
+}
+
+/* ---------- seller: orders ---------- */
+var adminOrdersPage = PAGES.orders;
+PAGES.orders = function () {
+  if (S.role === 'seller') return sellerOrders();
+  return adminOrdersPage();
+};
+function sellerOrders() {
+  if (S.params.orderId) return orderDetailPage(S.params.orderId);
+  var q = S.cache['sord_q'] || '';
+  var status = S.cache['sord_status'] || 'all';
+  var df = dFilterArgs('sord_d');
+  return call('apiGetOrders', S.token, q, status, df[0], df[1], df[2]).then(function (list) {
+    var pg = paginate('orders', list);
+    var stOpts = ['all', 'New', 'Assigned', 'Pending Acceptance', 'Accepted', 'Processing', 'Ready', 'Completed', 'Cancelled', 'Rejected'];
+    var needsAction = list.filter(function (o) { return o.Status === 'Assigned' || o.Status === 'Pending Acceptance'; }).length;
+    $('content').innerHTML =
+      '<div class="page-title">My Orders' + (needsAction ? ' <span class="chip lime">' + needsAction + ' awaiting your response</span>' : '') + '</div>' +
+      '<div class="searchbar"><input id="sord-q" placeholder="Search order no, customer..." value="' + esc(q) + '" onkeydown="if(event.key===\'Enter\'){S.cache[\'sord_q\']=this.value;S.cache[\'pg_orders\']=1;refresh();}">' +
+      '<select onchange="S.cache[\'sord_status\']=this.value;S.cache[\'pg_orders\']=1;refresh();">' + stOpts.map(function (o) { return '<option value="' + o + '"' + (status === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Statuses' : o) + '</option>'; }).join('') + '</select></div>' +
+      dateFilterBar('sord_d') +
+      (pg.slice.length ? pg.slice.map(function (o) {
+        var act = '';
+        if (o.Status === 'Assigned' || o.Status === 'Pending Acceptance') act = '<button class="btn btn-lime btn-sm" onclick="sellerStatusUpdate(\'' + o.Order_ID + '\',\'Accepted\')">Accept</button><button class="btn btn-danger btn-sm" onclick="sellerStatusUpdate(\'' + o.Order_ID + '\',\'Rejected\')">Reject</button>';
+        return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(o.Order_No) + ' ' + statusChip(o.Status) + '</div>' +
+          '<div class="li-sub">' + esc(o.Customer_Name) + ' (' + esc(o.Customer_Phone) + ')<br>' + money(o.Final_Amount) + ' &bull; You earn ' + money(o.Seller_Earning) + ' &bull; ' + esc(String(o.Created_At).slice(0, 16)) + '</div></div></div>' +
+          '<div class="li-actions"><button class="btn btn-dark btn-sm" onclick="go(\'orders\',{orderId:\'' + o.Order_ID + '\'})">Details</button>' + act + '</div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#128230;</div>No orders. Admin-assigned orders appear here.</div>');
+  });
+}
+function sellerStatusUpdate(orderId, status) {
+  var isReject = status === 'Rejected';
+  if (!isReject) {
+    confirmDialog('Mark this order as ' + status + '?', function () {
+      call('apiUpdateOrderStatus', S.token, orderId, status, '').then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    });
+    return;
+  }
+  openModal('<h3>Reject Order</h3><label>Reason (sent to admin)</label><textarea id="rjord-r" rows="3" placeholder="Why are you rejecting this order?"></textarea>' +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Back</button><button class="btn btn-danger" id="rjord-go">Reject Order</button></div>');
+  $('rjord-go').onclick = function () {
+    var r = $('rjord-r').value;
+    closeModal();
+    call('apiUpdateOrderStatus', S.token, orderId, 'Rejected', r).then(function (x) { toast(x.message, 'ok'); refresh(); }).catch(function () {});
+  };
+}
+
+/* ---------- seller: inventory ---------- */
+PAGES.inventory = function () {
+  var q = S.cache['inv_q'] || '';
+  return call('apiGetInventory', S.token, q).then(function (d) {
+    var stat = function (n, l, ic, lime) { return '<div class="card stat' + (lime ? ' lime' : '') + '"><span class="ic">' + ic + '</span><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
+    var prodRows = d.products.map(function (p) {
+      return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(p.Name) + ' ' + statusChip(num_(p.Stock) <= 0 ? 'Out of Stock' : (num_(p.Stock) <= 5 ? 'Low Stock' : 'In Stock')) + '</div>' +
+        '<div class="li-sub">' + esc(p.SKU || p.Product_ID) + ' &bull; Stock: <b>' + esc(p.Stock) + '</b> ' + esc(p.Unit || '') + '</div></div></div>' +
+        '<div class="li-actions"><button class="btn btn-lime btn-sm" onclick="stockUpdate(\'' + p.Product_ID + '\',' + Number(p.Stock || 0) + ')">Update Stock</button></div></div>';
+    }).join('');
+    var histRows = d.history.slice(0, 30).map(function (h) {
+      var chg = Number(h.Change || 0);
+      return '<tr><td>' + esc(String(h.Updated_At || '').slice(0, 16)) + '</td><td>' + esc(h.Product_ID) + '</td><td>' + (chg >= 0 ? '+' : '') + chg + '</td><td>' + esc(h.Stock_After) + '</td><td>' + esc(h.Reason) + '</td></tr>';
+    }).join('');
+    $('content').innerHTML =
+      '<div class="page-title">Inventory</div>' +
+      '<div class="cards c3">' + stat(d.totals.totalStock, 'Total Stock Units', '&#128729;') + stat(d.totals.available, 'Available Products', '&#9989;', 1) + stat(d.totals.low, 'Low Stock', '&#9203;') + stat(d.totals.out, 'Out of Stock', '&#10060;') + '</div>' +
+      '<div class="searchbar mt"><input id="inv-q" placeholder="Search product or SKU..." value="' + esc(q) + '" onkeydown="if(event.key===\'Enter\'){S.cache[\'inv_q\']=this.value;refresh();}"></div>' +
+      '<div class="sec-h">Stock by Product</div>' + (d.products.length ? prodRows : '<div class="empty"><div class="e-ic">&#128729;</div>No products. Add products first.</div>') +
+      '<div class="sec-h">Stock History (latest 30)</div>' + (d.history.length ? '<div class="tbl-wrap"><table class="tbl"><tr><th>When</th><th>Product</th><th>Change</th><th>Stock After</th><th>Reason</th></tr>' + histRows + '</table></div>' : '<div class="empty">No stock movements yet.</div>');
+  });
+};
+function num_(v) { var n = Number(v); return isNaN(n) ? 0 : n; }
+
+/* ---------- seller: sales reports ---------- */
+PAGES.sales = function () {
+  var df = dFilterArgs('sales_d');
+  return call('apiGetOrders', S.token, '', 'Completed', df[0], df[1], df[2]).then(function (list) {
+    var byDay = {}, byProduct = {}, total = 0, commission = 0, earning = 0;
+    var detailCalls = list.slice(0, 60).map(function (o) { return api('apiGetOrderDetail', S.token, o.Order_ID).catch(function () { return null; }); });
+    var base = list.map(function (o) {
+      var day = String(o.Created_At).slice(0, 10);
+      byDay[day] = (byDay[day] || 0) + Number(o.Final_Amount || 0);
+      total += Number(o.Final_Amount || 0);
+      commission += Number(o.Commission_Amount || 0);
+      earning += Number(o.Seller_Earning || 0);
+      return o;
+    });
+    return Promise.all(detailCalls).then(function (details) {
+      details.forEach(function (d) {
+        if (!d) return;
+        d.items.forEach(function (i) {
+          var k = i.Product_Name || 'Unknown';
+          if (!byProduct[k]) byProduct[k] = { qty: 0, amount: 0 };
+          byProduct[k].qty += Number(i.Qty || 0);
+          byProduct[k].amount += Number(i.Subtotal || 0);
+        });
+      });
+      var days = Object.keys(byDay).sort().reverse();
+      var stat = function (n, l, ic, lime) { return '<div class="card stat' + (lime ? ' lime' : '') + '"><span class="ic">' + ic + '</span><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
+      var dayRows = days.slice(0, 30).map(function (d0) {
+        return '<tr><td>' + esc(d0) + '</td><td>' + base.filter(function (o) { return String(o.Created_At).slice(0, 10) === d0; }).length + '</td><td>' + money(byDay[d0]) + '</td></tr>';
+      }).join('');
+      var prodRows = Object.keys(byProduct).map(function (k) {
+        return '<tr><td>' + esc(k) + '</td><td>' + byProduct[k].qty + '</td><td>' + money(byProduct[k].amount) + '</td></tr>';
+      }).join('');
+      $('content').innerHTML =
+        '<div class="page-title">Sales Reports <button class="btn btn-ghost btn-sm" onclick="exportSales()">Download CSV</button>' +
+        '<button class="btn btn-dark btn-sm" onclick="printSales()">Print Report</button></div>' +
+        dateFilterBar('sales_d') +
+        '<div class="cards c3">' + stat(money(total), 'Total Sales (Completed)', '&#128176;', 1) + stat(base.length, 'Completed Orders', '&#9989;') + '</div>' +
+        '<div class="cards c3">' + stat(money(commission), 'BLYNZO Commission', '&#127991;') + stat(money(earning), 'Net Earnings', '&#128181;', 1) + stat(money(total / (days.length || 1)), 'Avg per Active Day', '&#128200;') + '</div>' +
+        '<div class="sec-h">Daily Sales (latest 30 days with sales)</div>' + (dayRows ? '<div class="tbl-wrap"><table class="tbl"><tr><th>Date</th><th>Orders</th><th>Sales</th></tr>' + dayRows + '</table></div>' : '<div class="empty"><div class="e-ic">&#128200;</div>No completed sales in this period.</div>') +
+        '<div class="sec-h">Product-wise Sales</div>' + (prodRows ? '<div class="tbl-wrap"><table class="tbl"><tr><th>Product</th><th>Qty Sold</th><th>Amount</th></tr>' + prodRows + '</table></div>' : '<div class="empty">No product sales yet.</div>');
+      S.cache.salesExport = { days: days, byDay: byDay, byProduct: byProduct, total: total };
+    });
+  });
+};
+function exportSales() {
+  var d = S.cache.salesExport;
+  if (!d) { toast('Load the report first.', 'err'); return; }
+  var rows = d.days.map(function (d0) { return { Date: d0, Orders: d.byDay[d0], Sales: d.byDay[d0] }; });
+  Object.keys(d.byProduct).forEach(function (k) { rows.push({ Date: 'PRODUCT', Orders: d.byProduct[k].qty, Sales: d.byProduct[k].amount, Product: k }); });
+  rows.push({ Date: 'TOTAL', Orders: '', Sales: d.total });
+  exportCSV(rows, 'blynzo_sales');
+}
+function printSales() {
+  var d = S.cache.salesExport;
+  if (!d) { toast('Load the report first.', 'err'); return; }
+  var t = '<table><tr><th>Date</th><th>Sales</th></tr>' + d.days.map(function (d0) { return '<tr><td>' + esc(d0) + '</td><td>' + money(d.byDay[d0]) + '</td></tr>'; }).join('') +
+    '<tr><th>Total</th><th>' + money(d.total) + '</th></tr></table>';
+  printReport('BLYNZO Sales Report', t);
+}
+
+/* ---------- seller: commission / payments / transactions ---------- */
+PAGES.commission = function () {
+  return call('apiGetCommissions', S.token).then(function (d) {
+    return call('apiGetOrders', S.token, '', 'Completed', 'all', '', '').then(function (orders) {
+      var orderRows = orders.map(function (o) {
+        return '<tr><td>' + esc(o.Order_No) + '</td><td>' + esc(String(o.Created_At).slice(0, 10)) + '</td><td>' + money(o.Final_Amount) + '</td><td>' + esc(o.Commission_Percent) + '%</td><td>' + money(o.Commission_Amount) + '</td><td>' + money(o.Seller_Earning) + '</td></tr>';
+      }).join('');
+      var histRows = (d.history || []).map(function (c) {
+        return '<tr><td>' + esc(String(c.Created_At || '').slice(0, 10)) + '</td><td>' + esc(c.Scope) + (c.Target ? ' (' + esc(c.Target) + ')' : '') + '</td><td>' + esc(c.Percent) + '%</td><td>' + esc(c.Effective_Date) + '</td><td>' + (String(c.Active) === 'yes' ? '<span class="chip green">Current</span>' : '<span class="chip gray">Old</span>') + '</td></tr>';
+      }).join('');
+      var totalComm = orders.reduce(function (a, o) { return a + Number(o.Commission_Amount || 0); }, 0);
+      var totalEarn = orders.reduce(function (a, o) { return a + Number(o.Seller_Earning || 0); }, 0);
+      var stat = function (n, l, ic, lime) { return '<div class="card stat' + (lime ? ' lime' : '') + '"><span class="ic">' + ic + '</span><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
+      $('content').innerHTML =
+        '<div class="page-title">Commission</div>' +
+        '<div class="banner lime">Commission is set by admin. You can view it here but cannot change it. Each order keeps its own snapshot, so rate changes never affect old orders.</div>' +
+        '<div class="cards c3">' + stat((d.currentPercent || 0) + '%', 'Current Commission Rate', '&#128176;', 1) +
+        stat(money(totalComm), 'Total Commission (Completed)', '&#127991;') + stat(money(totalEarn), 'Total Earnings', '&#128181;', 1) + '</div>' +
+        '<div class="sec-h">Order-wise Commission</div>' + (orderRows ? '<div class="tbl-wrap"><table class="tbl"><tr><th>Order</th><th>Date</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Earning</th></tr>' + orderRows + '</table></div>' : '<div class="empty"><div class="e-ic">&#128176;</div>No completed orders yet.</div>') +
+        '<div class="sec-h">Commission History</div>' + (histRows ? '<div class="tbl-wrap"><table class="tbl"><tr><th>Set On</th><th>Scope</th><th>%</th><th>Effective</th><th>State</th></tr>' + histRows + '</table></div>' : '<div class="empty">No commission history yet.</div>');
+    });
+  });
+};
+function sellerPayments() {
+  var status = S.cache['spay_status'] || 'all';
+  var df = dFilterArgs('spay_d');
+  return call('apiGetPayments', S.token, 'all', status, df[0], df[1], df[2]).then(function (list) {
+    var pg = paginate('payments', list);
+    var paid = list.filter(function (p) { return p.Status === 'Paid'; }).reduce(function (a, p) { return a + Number(p.Amount || 0); }, 0);
+    var pend = list.filter(function (p) { return p.Status !== 'Paid'; }).reduce(function (a, p) { return a + Number(p.Amount || 0); }, 0);
+    var stat = function (n, l, ic, lime) { return '<div class="card stat' + (lime ? ' lime' : '') + '"><span class="ic">' + ic + '</span><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; };
+    $('content').innerHTML =
+      '<div class="page-title">Payments</div>' +
+      '<div class="cards c3">' + stat(money(paid), 'Total Paid', '&#9989;', 1) + stat(money(pend), 'Pending Payments', '&#9203;') + stat(list.length, 'Payment Records', '&#128181;') + '</div>' +
+      '<div class="searchbar"><select onchange="S.cache[\'spay_status\']=this.value;S.cache[\'pg_payments\']=1;refresh();">' +
+      ['all', 'Pending', 'Paid'].map(function (o) { return '<option value="' + o + '"' + (status === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Statuses' : o) + '</option>'; }).join('') + '</select></div>' +
+      dateFilterBar('spay_d') +
+      (pg.slice.length ? pg.slice.map(function (p) {
+        return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + money(p.Amount) + ' - ' + esc(p.Method) + ' ' + statusChip(p.Status) + '</div>' +
+          '<div class="li-sub">' + esc(p.Payment_ID) + ' &bull; ' + esc(String(p.Payment_Date || '').slice(0, 10)) +
+          (p.Txn_ID ? ' &bull; Txn: ' + esc(p.Txn_ID) : '') + (p.Remarks ? '<br>Remarks: ' + esc(p.Remarks) : '') + '</div></div></div>' +
+          '<div class="li-actions"><button class="btn btn-ghost btn-sm" onclick="paymentReceipt(\'' + p.Payment_ID + '\')">Receipt</button>' +
+          (p.Proof_URL ? '<a class="btn btn-ghost btn-sm" href="' + esc(p.Proof_URL) + '" target="_blank">Proof</a>' : '') + '</div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#128181;</div>No payments yet. Admin payment records appear here.</div>');
+  });
+}
+function sellerTransactions() {
+  var type = S.cache['stxn_type'] || 'all';
+  var df = dFilterArgs('stxn_d');
+  return call('apiGetTransactions', S.token, 'all', type, df[0], df[1], df[2]).then(function (list) {
+    var pg = paginate('transactions', list);
+    $('content').innerHTML =
+      '<div class="page-title">Transactions</div>' +
+      '<div class="searchbar"><select onchange="S.cache[\'stxn_type\']=this.value;S.cache[\'pg_transactions\']=1;refresh();">' +
+      ['all', 'Order Sale', 'Commission', 'Earning', 'Payment'].map(function (o) { return '<option value="' + o + '"' + (type === o ? ' selected' : '') + '>' + (o === 'all' ? 'All Types' : o) + '</option>'; }).join('') + '</select></div>' +
+      dateFilterBar('stxn_d') +
+      (pg.slice.length ? '<div class="tbl-wrap"><table class="tbl"><tr><th>Txn ID</th><th>Date</th><th>Order</th><th>Type</th><th>Amount</th><th>Status</th><th>Description</th></tr>' +
+        pg.slice.map(function (t) {
+          return '<tr><td>' + esc(t.Txn_ID) + '</td><td>' + esc(String(t.Date).slice(0, 16)) + '</td><td>' + esc(t.Order_ID || '-') + '</td><td>' + esc(t.Type) + '</td><td>' + money(t.Amount) + '</td><td>' + statusChip(t.Status) + '</td><td>' + esc(t.Description) + '</td></tr>';
+        }).join('') + '</table></div>' + pg.pager : '<div class="empty"><div class="e-ic">&#129534;</div>No transactions yet.</div>');
+  });
+}
+
+/* ---------- notifications (seller) ---------- */
+PAGES.notifications = function () {
+  var box = S.cache['not_box'] || 'all';
+  return call('apiGetNotifications', S.token, box).then(function (list) {
+    var pg = paginate('notices', list);
+    $('content').innerHTML =
+      '<div class="page-title">Notifications <button class="btn btn-ghost btn-sm" onclick="call(\'apiMarkAllNotificationsRead\',S.token).then(function(){toast(\'All marked read.\',\'ok\');refresh();}).catch(function(){});">Mark All Read</button></div>' +
+      '<div class="filters">' + [['all', 'All'], ['unread', 'Unread'], ['read', 'Read']].map(function (o) {
+        return '<button class="' + (box === o[0] ? 'on' : '') + '" onclick="S.cache[\'not_box\']=\'' + o[0] + '\';S.cache[\'pg_notices\']=1;refresh();">' + o[1] + '</button>';
+      }).join('') + '</div>' +
+      (pg.slice.length ? pg.slice.map(function (n) {
+        var unread = String(n.Read_Flag) === 'no';
+        return '<div class="noti-item ' + (unread ? 'unread' : '') + '" onclick="openNotice(\'' + n.ID + '\')" style="cursor:pointer">' +
+          '<div class="ic">' + ({ notice: '&#128227;', order: '&#128230;', payment: '&#128181;', registration: '&#127962;', product: '&#128096;', message: '&#128172;', meeting: '&#128197;', support: '&#127909;', account: '&#128100;', commission: '&#128176;', security: '&#128272;', profile_change: '&#9997;', product_change: '&#128096;' }[n.Type] || '&#128276;') + '</div>' +
+          '<div class="grow"><div class="t">' + esc(n.Title) + ' ' + (unread ? '<span class="chip lime">NEW</span>' : '') + '</div>' +
+          '<div class="b">' + esc(n.Body) + '</div><div class="w">' + esc(n.Type) + ' \u2022 ' + esc(n.Created_At) + '</div></div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#128276;</div>No notifications here.</div>');
+  });
+};
+
+/* ---------- messages (role-aware chat) ---------- */
+var MSG = { sellerId: null, timer: null, lastCount: 0 };
+PAGES.messages = function () {
+  if (S.role === 'admin') return adminMessages();
+  return sellerMessages();
+};
+function adminMessages() {
+  if (S.params.sellerId) return messageThread(S.params.sellerId);
+  return call('apiGetMessageThreads', S.token).then(function (threads) {
+    var rows = threads.map(function (t) {
+      return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(t.shopName || t.sellerId) + ' <span class="chip black">' + esc(t.sellerId) + '</span>' + (t.unread ? ' <span class="chip lime">' + t.unread + ' unread</span>' : '') + '</div>' +
+        '<div class="li-sub">' + (t.last ? esc(t.last).slice(0, 80) : 'No messages yet') + (t.lastAt ? '<br>' + esc(t.lastAt) : '') + '</div></div></div>' +
+        '<div class="li-actions"><button class="btn btn-lime btn-sm" onclick="go(\'messages\',{sellerId:\'' + t.sellerId + '\'})">Open Chat</button></div></div>';
+    }).join('');
+    $('content').innerHTML =
+      '<div class="page-title">Seller Messages</div>' +
+      (threads.length ? rows : '<div class="empty"><div class="e-ic">&#128172;</div>No seller conversations yet. Sellers can message you from their app.</div>');
+  });
+}
+function sellerMessages() { return messageThread(S.boot && S.boot.identity); }
+function messageThread(sellerId) {
+  MSG.sellerId = sellerId;
+  MSG.lastCount = -1;
+  renderMessageThread();
+  stopTimers();
+  MSG.timer = setInterval(function () {
+    if (S.page !== 'messages') { clearInterval(MSG.timer); MSG.timer = null; startTimers(); return; }
+    renderMessageThread(true);
+  }, 5000);
+  return Promise.resolve();
+}
+function renderMessageThread(quiet) {
+  if (!MSG.sellerId) return;
+  api('apiGetMessages', S.token).then(function (msgs) {
+    if (S.page !== 'messages') return;
+    if (!$('msg-chat')) {
+      var title = S.role === 'admin' ? (MSG.sellerId) : 'Admin (BLYNZO Support)';
+      $('content').innerHTML =
+        '<div class="page-title"><span class="link" onclick="MSG.sellerId=null;clearInterval(MSG.timer);MSG.timer=null;startTimers();S.params={};refresh();">&larr; ' + (S.role === 'admin' ? 'Messages' : 'Back') + '</span> &nbsp;Chat: ' + esc(title) + '</div>' +
+        '<div class="panel"><div class="chat" id="msg-chat"></div>' +
+        '<div class="chat-in"><input id="msg-in" placeholder="Type your message..." onkeydown="if(event.key===\'Enter\')msgSend()"><button class="btn btn-lime btn-sm" onclick="msgSend()">Send</button></div></div>';
+      MSG.lastCount = -1;
+    }
+    if (msgs.length !== MSG.lastCount) {
+      var box = $('msg-chat');
+      var atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+      box.innerHTML = msgs.map(function (m) {
+        var mine = (m.From_Role === S.role);
+        return '<div class="bub ' + (mine ? 'me' : 'them') + '"><div class="who">' + esc(m.From_Name) + '</div>' + esc(m.Body) + '<div class="when">' + esc(m.Sent_At) + '</div></div>';
+      }).join('') || '<div class="empty">No messages yet. Say hello.</div>';
+      MSG.lastCount = msgs.length;
+      if (atEnd || MSG.lastCount <= 1) box.scrollTop = box.scrollHeight;
+      if (S.role === 'admin') call('apiMarkThreadRead', S.token, MSG.sellerId).catch(function () {});
+    }
+  }).catch(function (e) { if (!quiet) toast((e && e.message) || 'Could not load messages.', 'err'); });
+}
+function msgSend() {
+  var el = $('msg-in');
+  if (!el || !el.value.trim()) return;
+  var body = el.value.trim();
+  el.value = '';
+  call('apiSendMessage', S.token, body, S.role === 'admin' ? MSG.sellerId : undefined).then(function () { MSG.lastCount = -1; renderMessageThread(true); }).catch(function () {});
+}
+
+/* ---------- support tickets ---------- */
+PAGES.support = function () {
+  var status = S.cache['tk_status'] || 'all';
+  return call('apiGetTickets', S.token, status).then(function (list) {
+    var pg = paginate('tickets', list);
+    $('content').innerHTML =
+      '<div class="page-title">Support <button class="btn btn-lime btn-sm" onclick="ticketForm()">+ New Ticket</button></div>' +
+      '<div class="filters">' + ['all', 'Open', 'Answered', 'Reopened', 'Closed'].map(function (o) {
+        return '<button class="' + (status === o ? 'on' : '') + '" onclick="S.cache[\'tk_status\']=\'' + o + '\';S.cache[\'pg_tickets\']=1;refresh();">' + (o === 'all' ? 'All' : o) + '</button>';
+      }).join('') + '</div>' +
+      (pg.slice.length ? pg.slice.map(function (t) {
+        return '<div class="list-item"><div class="li-top"><div><div class="li-title">' + esc(t.Category) + ' ' + statusChip(t.Status) + '</div>' +
+          '<div class="li-sub">' + esc(t.Details).slice(0, 120) + '<br>' + esc(t.Ticket_ID) + ' &bull; ' + esc(String(t.Created_At).slice(0, 16)) + '</div></div></div>' +
+          (t.Admin_Reply ? '<div class="banner lime" style="margin-top:8px"><b>Admin reply:</b> ' + esc(t.Admin_Reply) + '</div>' : '') +
+          '<div class="li-actions">' +
+          (t.Image_URL ? '<a class="btn btn-ghost btn-sm" href="' + esc(t.Image_URL) + '" target="_blank">Image</a>' : '') +
+          (S.role === 'admin' ? '<button class="btn btn-lime btn-sm" onclick="ticketReply(\'' + t.Ticket_ID + '\')">Reply</button>' :
+            (t.Status !== 'Closed' ? '<button class="btn btn-ghost btn-sm" onclick="ticketReply(\'' + t.Ticket_ID + '\')">Add Details / Reopen</button>' : '')) +
+          '</div></div>';
+      }).join('') + pg.pager : '<div class="empty"><div class="e-ic">&#127909;</div>No tickets. Create one if you need help.</div>');
+  });
+};
+var adminTicketsPage = PAGES.support;
+PAGES.tickets = function () { return adminTicketsPage(); };
+function ticketForm() {
+  openModal('<h3>New Support Ticket</h3>' + buildFields([
+    { k:'category', label:'Issue Category', type:'select', opts:['Login Problem','Payment Issue','Order Issue','Product Issue','Account Verification','App Problem','Other'] },
+    { k:'details', label:'Problem Details', type:'textarea', req:1 },
+    { k:'image', label:'Attach Image (optional)', type:'file' }
+  ]) + '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="tk-go">Create Ticket</button></div>');
+  $('tk-go').onclick = function () {
+    var data = { category: $('f_category').value, details: $('f_details').value };
+    if (!data.category || !data.details) { toast('Category and details are required.', 'err'); return; }
+    var f = $('f_image').files[0];
+    var fin = function (img) { if (img) data.image = img; call('apiCreateTicket', S.token, data).then(function (r) { closeModal(); toast(r.message, 'ok'); refresh(); }).catch(function () {}); };
+    if (f) fileToB64(f).then(fin).catch(function (e) { toast(e.message, 'err'); }); else fin(null);
+  };
+}
+function ticketReply(ticketId) {
+  openModal('<h3>Ticket ' + esc(ticketId) + '</h3><label>' + (S.role === 'admin' ? 'Reply to seller' : 'Additional details') + '</label><textarea id="tkr-r" rows="3"></textarea>' +
+    (S.role === 'admin' ? '<label>Status</label><select id="tkr-s"><option value="Answered">Answered</option><option value="Open">Open</option><option value="Closed">Closed</option></select>' : '') +
+    '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-lime" id="tkr-go">Send</button></div>');
+  $('tkr-go').onclick = function () {
+    var r = $('tkr-r').value;
+    if (!r.trim()) { toast('Write a message.', 'err'); return; }
+    var st = S.role === 'admin' ? $('tkr-s').value : '';
+    closeModal();
+    call('apiReplyTicket', S.token, ticketId, r, st).then(function (x) { toast(x.message, 'ok'); refresh(); }).catch(function () {});
+  };
+}
+
+/* ---------- seller: profile ---------- */
+PAGES.profile = function () {
+  return call('apiGetSellerProfile', S.token).then(function (d) {
+    var se = d.seller || {}, sh = d.shop || {}, bank = d.bank || {};
+    var kv = function (l, v) { return '<div class="kv"><b>' + esc(l) + '</b><span>' + esc(v || '-') + '</span></div>'; };
+    var acct = String(bank.Account_Number || '');
+    var maskedAcct = acct ? ('\u2022\u2022\u2022\u2022' + acct.slice(-4)) : '-';
+    $('content').innerHTML =
+      '<div class="page-title">My Profile ' + statusChip(se.status || 'Pending') + '</div>' +
+      (sh.Change_Request ? '<div class="banner">Pending change request with admin:<br>' + esc(sh.Change_Request).replace(/\n/g, '<br>') + '</div>' : '') +
+      '<div class="panel"><h3>Personal Information</h3>' +
+      kv('Seller ID', se.sellerId) + kv('Full Name', se.name) + kv("Father's Name", se.fatherName) +
+      kv('Mobile', se.mobile) + kv('WhatsApp', se.whatsapp) + kv('Email', se.email) +
+      kv('Date of Birth', se.dob) + kv('Gender', se.gender) + kv('Address', se.address) +
+      kv('Village / Town', se.village) + kv('District', se.district) + kv('State', se.state) + kv('PIN Code', se.pincode) + '</div>' +
+      '<div class="panel"><h3>Identity Verification</h3>' +
+      kv('Status', d.profile.identityStatus) +
+      '<div class="hint">Aadhaar and PAN details are protected and visible only to authorized admin. Request a correction via the form below.</div></div>' +
+      '<div class="panel"><h3>Shop</h3>' + kv('Shop Name', sh.Shop_Name) + kv('Shop Address', sh.Shop_Address) + kv('Shop Mobile', sh.Shop_Mobile) +
+      '<div class="mt"><button class="btn btn-ghost btn-sm" onclick="go(\'shop\')">Open My Shop</button></div></div>' +
+      '<div class="panel"><h3>Bank &amp; Payment Details</h3>' +
+      kv('Account Holder', bank.Holder_Name) + kv('Bank Name', bank.Bank_Name) + kv('Account Number', maskedAcct) +
+      kv('IFSC Code', bank.IFSC) + kv('UPI ID', bank.UPI_ID) + '</div>' +
+      '<div class="panel"><h3>Request Profile Change</h3>' +
+      '<label>What should change?</label><textarea id="prf-chg" rows="3" placeholder="Example: correct my name spelling, update mobile number..."></textarea>' +
+      '<button class="btn btn-lime mt" id="prf-go">Send Change Request</button></div>';
+    $('prf-go').onclick = function () {
+      var v = $('prf-chg').value.trim();
+      if (!v) { toast('Describe the change you request.', 'err'); return; }
+      call('apiRequestProfileChange', S.token, { profile: v }).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+  });
+};
+
+/* ---------- settings (role-aware) ---------- */
+PAGES.settings = function () {
+  if (S.role === 'admin') return adminSettings();
+  $('content').innerHTML =
+    '<div class="page-title">Settings</div>' +
+    '<div class="panel"><h3>Change PIN</h3>' + buildFields([
+      { k:'currentPin', label:'Current PIN', type:'password', req:1 },
+      { k:'newPin', label:'New PIN (min 6 digits)', type:'password', req:1 },
+      { k:'confirmPin', label:'Confirm New PIN', type:'password', req:1 }
+    ]) + '<button class="btn btn-lime" id="pin-go">Update PIN</button></div>' +
+    '<div class="panel"><h3>Notification Preferences</h3>' +
+    '<div class="hint">Order, payment, meeting and notice notifications are delivered in-app and follow the platform notification settings configured by admin.</div></div>' +
+    '<div class="panel"><h3>Profile &amp; Session</h3>' +
+    '<div class="kv"><b>Profile</b><span>Profile and shop details are edited via change requests (Profile / My Shop pages).</span></div>' +
+    '<div class="kv"><b>Session</b><span>Sessions expire automatically. Remember Me keeps you logged in longer.</span></div>' +
+    '<button class="btn btn-dark mt" onclick="doLogout()">Secure Logout</button></div>';
+  $('pin-go').onclick = function () {
+    var cur = $('f_currentPin').value, np = $('f_newPin').value, cp = $('f_confirmPin').value;
+    if (np !== cp) { toast('New PIN and confirmation do not match.', 'err'); return; }
+    call('apiChangeSellerPin', S.token, cur, np).then(function (r) { toast(r.message, 'ok'); $('f_currentPin').value = ''; $('f_newPin').value = ''; $('f_confirmPin').value = ''; }).catch(function () {});
+  };
+};
+function adminSettings() {
+  return call('apiGetAdminSettings', S.token).then(function (d) {
+    var app = d.app || {}, adm = d.admin || {};
+    $('content').innerHTML =
+      '<div class="page-title">Admin Settings</div>' +
+      '<div class="panel"><h3>General / Branding</h3>' + buildFields([
+        { k:'Brand_Name', label:'Brand Name', def:app.Brand_Name || 'BLYNZO' },
+        { k:'Logo_URL', label:'Logo URL', def:app.Logo_URL || '', hint:'Paste a hosted image URL (Drive/CDN). Shown in header and login.' },
+        { k:'App_Name', label:'App Name', def:app.App_Name || 'BLYNZO Seller Partner' },
+        { k:'App_Description', label:'App Description', def:app.App_Description || '', type:'textarea' },
+        { k:'Contact_Number', label:'Contact Number', def:app.Contact_Number || '' },
+        { k:'Email', label:'Email', def:app.Email || '' },
+        { k:'Business_Address', label:'Business Address', def:app.Business_Address || '' },
+        { k:'Currency', label:'Currency Symbol', def:app.Currency || '\u20B9' }
+      ]) + '<button class="btn btn-lime" id="gen-go">Save General Settings</button></div>' +
+      '<div class="panel"><h3>Business Settings</h3>' + buildFields([
+        { k:'Default_Commission', label:'Default Commission (%)', type:'number', def:app.Default_Commission || 10 },
+        { k:'Product_Approval_Required', label:'Product Approval Required', type:'select', opts:['yes', 'no'], def:app.Product_Approval_Required || 'yes' },
+        { k:'Seller_Registration_Open', label:'Seller Registration Open', type:'select', opts:['yes', 'no'], def:app.Seller_Registration_Open || 'yes' },
+        { k:'Session_Hours', label:'Session Length (hours)', type:'number', def:app.Session_Hours || 12 },
+        { k:'Remember_Me_Days', label:'Remember Me (days)', type:'number', def:app.Remember_Me_Days || 30 },
+        { k:'Notifications_Enabled', label:'Notifications Enabled', type:'select', opts:['yes', 'no'], def:app.Notifications_Enabled || 'yes' },
+        { k:'Recovery_Contact', label:'Recovery Contact (shown on admin login)', def:app.Recovery_Contact || '' }
+      ]) + '<div class="hint">Seller-specific commissions are managed in the Commissions page. Payments and order settings use the Defaults above.</div>' +
+      '<button class="btn btn-lime" id="biz-go">Save Business Settings</button></div>' +
+      '<div class="panel"><h3>Security</h3>' + buildFields([
+        { k:'currentPassword', label:'Current Admin Password', type:'password', req:1 },
+        { k:'newUserId', label:'New Admin User ID (optional)' },
+        { k:'newPassword', label:'New Admin Password (optional, min 8 chars)', type:'password' }
+      ]) + '<div class="hint">Admin credentials are stored as salted hashes in Script Properties. They are never visible in the app or frontend code.</div>' +
+      '<button class="btn btn-lime" id="cred-go">Update Admin Credentials</button> ' +
+      '<button class="btn btn-danger" id="logoutall-go">Logout From All Sessions</button></div>' +
+      '<div class="panel"><h3>Data &amp; Backup</h3>' +
+      '<div class="kv"><b>Database</b><span>Google Sheets: BLYNZO_Database (21 sheets, auto-created by setupDatabase).</span></div>' +
+      '<div class="mt">' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportData(\'sellers\')">Export Sellers</button> ' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportData(\'products\')">Export Products</button> ' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportData(\'orders\')">Export Orders</button> ' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportData(\'payments\')">Export Payments</button> ' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportData(\'transactions\')">Export Transactions</button> ' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportData(\'commissions\')">Export Commissions</button> ' +
+      '<button class="btn btn-ghost btn-sm" onclick="exportData(\'logs\')">Export Audit Logs</button></div>' +
+      '<div class="hint">PIN hashes and bank account numbers are excluded from exports (marked PROTECTED). Regular sheet copies serve as backups.</div></div>';
+    $('gen-go').onclick = function () {
+      var keys = ['Brand_Name', 'Logo_URL', 'App_Name', 'App_Description', 'Contact_Number', 'Email', 'Business_Address', 'Currency'];
+      var out = {};
+      keys.forEach(function (k) { out[k] = $('f_' + k).value; });
+      call('apiSaveAppSettings', S.token, out).then(function (r) { toast(r.message, 'ok'); enterShell(); }).catch(function () {});
+    };
+    $('biz-go').onclick = function () {
+      var keys = ['Default_Commission', 'Product_Approval_Required', 'Seller_Registration_Open', 'Session_Hours', 'Remember_Me_Days', 'Notifications_Enabled', 'Recovery_Contact'];
+      var out = {};
+      keys.forEach(function (k) { out[k] = $('f_' + k).value; });
+      call('apiSaveAppSettings', S.token, out).then(function (r) { toast(r.message, 'ok'); refresh(); }).catch(function () {});
+    };
+    $('cred-go').onclick = function () {
+      call('apiChangeAdminCredentials', S.token, $('f_currentPassword').value, $('f_newUserId').value, $('f_newPassword').value).then(function (r) {
+        toast(r.message, 'ok');
+        $('f_currentPassword').value = ''; $('f_newUserId').value = ''; $('f_newPassword').value = '';
+      }).catch(function () {});
+    };
+    $('logoutall-go').onclick = function () {
+      confirmDialog('Log out every session (admin and all sellers) on all devices?', function () {
+        call('apiLogoutAllSessions', S.token).then(function (r) { toast(r.message, 'ok'); forceLogout('All sessions terminated. Please log in again.'); }).catch(function () {});
+      }, true);
+    };
+  });
+}
+function exportData(entity) {
+  call('apiExportData', S.token, entity, 'all').then(function (rows) { exportCSV(rows, 'blynzo_' + entity); }).catch(function () {});
+}
+
+/* ---------- admin: activity logs ---------- */
+PAGES.logs = function () {
+  var q = S.cache['log_q'] || '';
+  var df = dFilterArgs('log_d');
+  return call('apiGetActivityLogs', S.token, q, df[0], df[1], df[2]).then(function (list) {
+    var pg = paginate('logs', list);
+    var rows = pg.slice.map(function (l) {
+      return '<tr><td>' + esc(String(l.Created_At || '').slice(0, 19)) + '</td><td>' + esc(l.Actor_Role) + '</td><td>' + esc(l.Actor_ID) + '</td><td>' + esc(l.Action) + '</td><td>' + esc(l.Details) + '</td></tr>';
+    }).join('');
+    $('content').innerHTML =
+      '<div class="page-title">Activity Logs / Audit Trail <button class="btn btn-ghost btn-sm" onclick="exportData(\'logs\')">Export CSV</button></div>' +
+      '<div class="searchbar"><input id="log-q" placeholder="Search actor, action, details..." value="' + esc(q) + '" onkeydown="if(event.key===\'Enter\'){S.cache[\'log_q\']=this.value;S.cache[\'pg_logs\']=1;refresh();}"></div>' +
+      dateFilterBar('log_d') +
+      (pg.slice.length ? '<div class="tbl-wrap"><table class="tbl"><tr><th>Time</th><th>Role</th><th>Actor</th><th>Action</th><th>Details</th></tr>' + rows + '</table></div>' + pg.pager : '<div class="empty"><div class="e-ic">&#128220;</div>No log entries for this filter.</div>');
+  });
+};
+
+/* ================= BOOT ================= */
+window.addEventListener('load', function () {
+  var start = function () {
+    var tk = null, role = null, exp = 0;
+    try {
+      tk = localStorage.getItem('blynzo_token');
+      role = localStorage.getItem('blynzo_role');
+      exp = Number(localStorage.getItem('blynzo_exp') || 0);
+    } catch (e) {}
+    if (tk && exp > Date.now()) {
+      S.token = tk; S.role = role || 'seller';
+      enterShell();
+    } else {
+      if (tk) { try { localStorage.removeItem('blynzo_token'); localStorage.removeItem('blynzo_role'); localStorage.removeItem('blynzo_exp'); } catch (e) {} }
+      renderWelcome();
+    }
+  };
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    api('apiPublicConfig').then(function (cfg) { S.cfg = cfg; start(); }).catch(function () { start(); });
+  } else {
+    start();
+  }
+});
+</script>
+</body>
+</html>
